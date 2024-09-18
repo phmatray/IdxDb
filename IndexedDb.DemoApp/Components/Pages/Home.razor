@@ -1,0 +1,108 @@
+﻿@page "/"
+@using FormLang.BlazorApp.Models
+@using FormLang.BlazorApp.Services
+@inject PersonManager PersonManager
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<h1>IndexedDB Demo</h1>
+
+<h3>Add a new person</h3>
+<EditForm Model="_editPerson" OnSubmit="AddPersonAsync">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <div>
+    <label for="name">Name:</label>
+    <InputText id="name" @bind-Value="_editPerson.Name" />
+  </div>
+ 
+  <div>
+    <label for="age">Age:</label>
+    <InputNumber id="age" @bind-Value="_editPerson.Age" />
+  </div>
+
+  <button type="submit">Submit</button>
+</EditForm>
+
+<h3>People</h3>
+@if (_people.Length > 0)
+{
+  <table>
+    <thead>
+    <tr>
+      <th>Person ID</th>
+      <th>Person Name</th>
+      <th>Person Age</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var person in _people)
+    {
+      <tr key="@person.Id" @onclick="() => SelectPerson(person)">
+        <td>@person.Id</td>
+        <td>@person.Name</td>
+        <td>@person.Age</td>
+      </tr>
+    }
+    </tbody>
+  </table>
+}
+else
+{
+  <p>No person found.</p>
+}
+
+@code
+{
+
+  private Person[] _people = [];
+  private Person _editPerson = new();
+  private readonly Guid _defaultId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      // try to get the person from the database
+      _people = await PersonManager.GetAllPersonsAsync();
+      
+      
+      // if the person is not found, add a new person
+      if (_people.Length == 0)
+      {
+        _editPerson = new Person { Id = _defaultId, Name = "Philippe", Age = 30 };
+        await AddPersonAsync();
+      }
+      
+      StateHasChanged();
+    }
+  }
+  
+  private async Task AddPersonAsync()
+  {
+    // create a new person
+    var personToAdd = new Person
+    {
+      Id = Guid.NewGuid(),
+      Name = _editPerson.Name,
+      Age = _editPerson.Age
+    };
+    
+    // add the person to the database
+    await PersonManager.AddPersonAsync(personToAdd);
+    
+    // update the list of people
+    _people = _people.Append(personToAdd).ToArray();
+    
+    // clear the form
+    _editPerson = new Person();
+  }
+  
+  private void SelectPerson(Person person)
+  {
+    _editPerson = person;
+  }
+
+}
