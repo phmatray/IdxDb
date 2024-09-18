@@ -1,5 +1,6 @@
-using FormLang.BlazorApp.Services;
+using IndexedDb;
 using IndexedDb.DemoApp.Components;
+using IndexedDb.DemoApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

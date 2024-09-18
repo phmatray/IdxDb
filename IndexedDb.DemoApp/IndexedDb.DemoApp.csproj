@@ -6,4 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\js\idb.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IndexedDb\IndexedDb.csproj" />
+  </ItemGroup>
+
 </Project>

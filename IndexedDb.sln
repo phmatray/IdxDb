@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndexedDb.DemoApp", "Indexe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndexedDb", "IndexedDb\IndexedDb.csproj", "{249F7485-E93F-4B13-A349-AE59ECDA73EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndexedDb.Tests", "IndexedDb.Tests\IndexedDb.Tests.csproj", "{964081B2-BD2D-4912-B1F2-A657994536B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{249F7485-E93F-4B13-A349-AE59ECDA73EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{249F7485-E93F-4B13-A349-AE59ECDA73EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{249F7485-E93F-4B13-A349-AE59ECDA73EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{964081B2-BD2D-4912-B1F2-A657994536B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{964081B2-BD2D-4912-B1F2-A657994536B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{964081B2-BD2D-4912-B1F2-A657994536B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{964081B2-BD2D-4912-B1F2-A657994536B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
