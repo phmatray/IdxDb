@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
     
     <!-- Package Metadata -->
     <PackageId>IndexedDb</PackageId>
@@ -19,7 +20,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/phmatray/IndexedDb</PackageProjectUrl>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageIcon>.\logo.png</PackageIcon>
     <Summary>Provides easy access to IndexedDB in Blazor applications.</Summary>
     <Copyright>© Atypical Consulting SRL, 2024</Copyright>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -42,6 +43,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <!-- Include logo -->
+  <ItemGroup>
+    <Content Include="..\logo.png" Pack="true" PackagePath="">
+      <PackagePath>logo.png</PackagePath>
+    </Content>
   </ItemGroup>
 
 </Project>

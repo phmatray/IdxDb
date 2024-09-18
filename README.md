@@ -2,7 +2,7 @@
 
 A Blazor library that provides seamless interaction with IndexedDB via JavaScript interop. This library simplifies data storage and retrieval in Blazor applications by offering a straightforward API for IndexedDB operations.
 
-![NuGet](https://img.shields.io/nuget/v/IndexedDb) ![License](https://img.shields.io/github/license/yourusername/IndexedDb) ![Build](https://img.shields.io/github/actions/workflow/status/yourusername/IndexedDb/build.yml)
+![NuGet](https://img.shields.io/nuget/v/IndexedDb) ![License](https://img.shields.io/github/license/phmatray/IndexedDb) ![Build](https://img.shields.io/github/actions/workflow/status/phmatray/IndexedDb/build.yml)
 
 ## **Table of Contents**
 
