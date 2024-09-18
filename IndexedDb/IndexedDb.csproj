@@ -4,8 +4,33 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    
+    <!-- Package Metadata -->
+    <PackageId>IndexedDb</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Philippe Matray</Authors>
+    <Company>Atypical Consulting SRL</Company>
+    <Product>IndexedDb</Product>
+    <Description>A Blazor library for IndexedDB operations via JavaScript interop.</Description>
+    <PackageTags>Blazor; IndexedDB; JavaScript Interop; Data Storage</PackageTags>
+    <RepositoryUrl>https://github.com/phmatray/IndexedDb</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/phmatray/IndexedDb</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <Summary>Provides easy access to IndexedDB in Blazor applications.</Summary>
+    <Copyright>© Atypical Consulting SRL, 2024</Copyright>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    
+    <!-- Build Properties -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSource>true</IncludeSource>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
-
 
   <ItemGroup>
     <SupportedPlatform Include="browser"/>
@@ -13,6 +38,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.8"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

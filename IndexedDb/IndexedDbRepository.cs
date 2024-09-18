@@ -31,6 +31,7 @@ public class IndexedDbRepository<TItem> : IAsyncDisposable
     /// <param name="item">The item to add.</param>
     public async Task AddOneAsync(TItem item)
     {
+        ArgumentNullException.ThrowIfNull(item, nameof(item));
         await _indexedDbInterop.AddOneAsync(_dbName, _storeName, item);
     }
 
@@ -40,7 +41,7 @@ public class IndexedDbRepository<TItem> : IAsyncDisposable
     /// <param name="items">An array of items to add.</param>
     public async Task AddManyAsync(TItem[] items)
     {
-        object[] rawItems = items.Cast<object>().ToArray();
+        var rawItems = items.Cast<object>().ToArray();
         await _indexedDbInterop.AddManyAsync(_dbName, _storeName, rawItems);
     }
 
@@ -70,6 +71,7 @@ public class IndexedDbRepository<TItem> : IAsyncDisposable
     /// <param name="item">The item to update.</param>
     public async Task UpdateOneAsync(TItem item)
     {
+        ArgumentNullException.ThrowIfNull(item, nameof(item));
         await _indexedDbInterop.UpdateOneAsync(_dbName, _storeName, item);
     }
 
