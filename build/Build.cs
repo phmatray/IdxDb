@@ -80,13 +80,17 @@ Target TestJest => _ => _
         // Redirect NPM output to Serilog
         NpmTasks.NpmLogger = (outputType, text) => Log.Information(text);
         
+        // Define the path to the Jest tests directory
+        var jestTestsDirectory = RootDirectory / "IndexedDb.JsTests";
+
         // Install NPM dependencies
-        NpmTasks.NpmInstall();
+        NpmTasks.NpmInstall(new NpmInstallSettings()
+            .SetProcessWorkingDirectory(jestTestsDirectory));
         
         // Run Jest tests
         NpmTasks.NpmRun(new NpmRunSettings()
             .SetCommand("test")
-            .SetProcessWorkingDirectory(RootDirectory / "IndexedDb.JsTests"));
+            .SetProcessWorkingDirectory(jestTestsDirectory));
     });
 
     Target Pack => _ => _
@@ -105,7 +109,9 @@ Target TestJest => _ => _
                 .SetVersion(MinVer.Version));
         });
 
-    Target Publish => _ => _
+    // In order to publish packages, you must provide a NuGet API key
+    //
+    Target CreatePackage => _ => _
         .DependsOn(Pack)
         .Requires(() => NuGetApiKey)
         .Executes(() =>
@@ -131,5 +137,16 @@ Target TestJest => _ => _
                         .SetApiKey(NuGetApiKey)
                         .EnableSkipDuplicate());
                 });
+        });
+    
+    Target PublishPackages => _ => _
+        .DependsOn(CreatePackage)
+        .Executes(() =>
+        {
+            DotNetNuGetPush(s => s
+                .SetTargetPath(OutputDirectory / "*.nupkg")
+                .SetSource(NuGetSource)
+                .SetApiKey(NuGetApiKey)
+                .EnableSkipDuplicate());
         });
 }

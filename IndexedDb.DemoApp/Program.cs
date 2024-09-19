@@ -12,7 +12,7 @@ builder.Services.AddRazorComponents()
     });
 
 builder.Services.AddScoped<IndexedDbInterop>();
-builder.Services.AddScoped<PersonManager>();
+builder.Services.AddScoped<PersonRepository>();
 
 var app = builder.Build();
 
