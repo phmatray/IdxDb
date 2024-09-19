@@ -1,8 +1,8 @@
-# **IndexedDb Blazor Library**
+# **IdxDb**
 
-A Blazor library that provides seamless interaction with IndexedDB via JavaScript interop. This library simplifies data storage and retrieval in Blazor applications by offering a straightforward API for IndexedDB operations.
+A Blazor library that provides seamless interaction with **IndexedDB** via JavaScript interop. This library simplifies data storage and retrieval in Blazor applications by offering a straightforward API for IndexedDB operations.
 
-![NuGet](https://img.shields.io/nuget/v3/IndexedDb) ![License](https://img.shields.io/github/license/phmatray/IndexedDb)
+![NuGet](https://img.shields.io/nuget/v/IdxDb) ![License](https://img.shields.io/github/license/phmatray/IdxDb)
 
 ## **Table of Contents**
 
@@ -40,7 +40,7 @@ A Blazor library that provides seamless interaction with IndexedDB via JavaScrip
 Install the package via NuGet Package Manager:
 
 ```bash
-dotnet add package IndexedDb --version 1.0.0
+dotnet add package IdxDb --version 1.0.0-beta.1
 ```
 
 Or via the NuGet Package Manager UI in Visual Studio by searching for **IndexedDb**.

@@ -1,6 +1,6 @@
 using Microsoft.JSInterop;
 
-namespace IndexedDb;
+namespace IdxDb;
 
 /// <summary>
 /// Provides methods for interacting with IndexedDB via JavaScript interop.
@@ -16,7 +16,7 @@ public class IndexedDbInterop : IAsyncDisposable
     public IndexedDbInterop(IJSRuntime jsRuntime)
     {
         _moduleTask = new Lazy<Task<IJSObjectReference>>(() => jsRuntime
-            .InvokeAsync<IJSObjectReference>("import", "./_content/IndexedDb/idb.mjs")
+            .InvokeAsync<IJSObjectReference>("import", "./_content/IdxDb/idb.mjs")
             .AsTask());
     }
 

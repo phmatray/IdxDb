@@ -1,6 +1,6 @@
-using FormLang.BlazorApp.Models;
+using IdxDb.DemoApp.Models;
 
-namespace IndexedDb.DemoApp.Services;
+namespace IdxDb.DemoApp.Services;
 
 public class PersonRepository(IndexedDbInterop indexedDb)
 {

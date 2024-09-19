@@ -81,7 +81,7 @@ Target TestJest => _ => _
         NpmTasks.NpmLogger = (outputType, text) => Log.Information(text);
         
         // Define the path to the Jest tests directory
-        var jestTestsDirectory = RootDirectory / "IndexedDb.JsTests";
+        var jestTestsDirectory = RootDirectory / "IdxDb.JsTests";
 
         // Install NPM dependencies
         NpmTasks.NpmInstall(new NpmInstallSettings()
@@ -109,9 +109,7 @@ Target TestJest => _ => _
                 .SetVersion(MinVer.Version));
         });
 
-    // In order to publish packages, you must provide a NuGet API key
-    //
-    Target CreatePackage => _ => _
+    Target Publish => _ => _
         .DependsOn(Pack)
         .Requires(() => NuGetApiKey)
         .Executes(() =>
@@ -137,16 +135,5 @@ Target TestJest => _ => _
                         .SetApiKey(NuGetApiKey)
                         .EnableSkipDuplicate());
                 });
-        });
-    
-    Target PublishPackages => _ => _
-        .DependsOn(CreatePackage)
-        .Executes(() =>
-        {
-            DotNetNuGetPush(s => s
-                .SetTargetPath(OutputDirectory / "*.nupkg")
-                .SetSource(NuGetSource)
-                .SetApiKey(NuGetApiKey)
-                .EnableSkipDuplicate());
         });
 }

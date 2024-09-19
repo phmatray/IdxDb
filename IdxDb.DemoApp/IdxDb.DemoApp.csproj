@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>IdxDb.DemoApp</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IndexedDb\IndexedDb.csproj" />
+    <ProjectReference Include="..\IdxDb\IdxDb.csproj" />
   </ItemGroup>
 
 </Project>

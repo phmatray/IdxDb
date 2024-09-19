@@ -1,10 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndexedDb.DemoApp", "IndexedDb.DemoApp\IndexedDb.DemoApp.csproj", "{EF40E6B8-0B44-4073-B55B-815BA1B8A785}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdxDb.DemoApp", "IdxDb.DemoApp\IdxDb.DemoApp.csproj", "{EF40E6B8-0B44-4073-B55B-815BA1B8A785}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndexedDb", "IndexedDb\IndexedDb.csproj", "{249F7485-E93F-4B13-A349-AE59ECDA73EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdxDb", "IdxDb\IdxDb.csproj", "{249F7485-E93F-4B13-A349-AE59ECDA73EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndexedDb.Tests", "IndexedDb.Tests\IndexedDb.Tests.csproj", "{964081B2-BD2D-4912-B1F2-A657994536B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdxDb.Tests", "IdxDb.Tests\IdxDb.Tests.csproj", "{964081B2-BD2D-4912-B1F2-A657994536B3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{28581C83-4363-4E6E-AF4A-BCA662749B9F}"
 EndProject

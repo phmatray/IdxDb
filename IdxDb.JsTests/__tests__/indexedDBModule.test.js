@@ -15,7 +15,7 @@ import {
   count,
   beginTransaction,
   commitTransaction
-} from '../../IndexedDb/wwwroot/idb';
+} from '../../IdxDb/wwwroot/idb';
 
 describe('IndexedDB Module Tests', () => {
   const dbName = 'TestDB';

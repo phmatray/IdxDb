@@ -1,4 +1,4 @@
-namespace FormLang.BlazorApp.Models;
+namespace IdxDb.DemoApp.Models;
 
 public class Person
 {

@@ -9,17 +9,17 @@
     <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
     
     <!-- Package Metadata -->
-    <PackageId>IndexedDb</PackageId>
+    <PackageId>IdxDb</PackageId>
     <Version>1.0.0</Version>
     <Authors>Philippe Matray</Authors>
     <Company>Atypical Consulting SRL</Company>
-    <Product>IndexedDb</Product>
+    <Product>IdxDb</Product>
     <Description>A Blazor library for IndexedDB operations via JavaScript interop.</Description>
     <PackageTags>Blazor; IndexedDB; JavaScript Interop; Data Storage</PackageTags>
-    <RepositoryUrl>https://github.com/phmatray/IndexedDb</RepositoryUrl>
+    <RepositoryUrl>https://github.com/phmatray/IdxDb</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/phmatray/IndexedDb</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/phmatray/IdxDb</PackageProjectUrl>
     <PackageIcon>.\logo.png</PackageIcon>
     <Summary>Provides easy access to IndexedDB in Blazor applications.</Summary>
     <Copyright>© Atypical Consulting SRL, 2024</Copyright>
@@ -31,6 +31,7 @@
     <IncludeSource>true</IncludeSource>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <RootNamespace>IdxDb</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

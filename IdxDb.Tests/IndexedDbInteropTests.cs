@@ -1,7 +1,7 @@
 using Microsoft.JSInterop;
 using Moq;
 
-namespace IndexedDb.Tests;
+namespace IdxDb.Tests;
 
 [TestFixture]
 public class IndexedDbInteropTests

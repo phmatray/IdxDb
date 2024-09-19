@@ -1,6 +1,6 @@
 using Microsoft.JSInterop;
 
-namespace IndexedDb;
+namespace IdxDb;
 
 /// <summary>
 /// A generic repository for interacting with a specific object store in IndexedDB.
