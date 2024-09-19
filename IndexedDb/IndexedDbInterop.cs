@@ -16,7 +16,7 @@ public class IndexedDbInterop : IAsyncDisposable
     public IndexedDbInterop(IJSRuntime jsRuntime)
     {
         _moduleTask = new Lazy<Task<IJSObjectReference>>(() => jsRuntime
-            .InvokeAsync<IJSObjectReference>("import", "./_content/IndexedDb/idb.js")
+            .InvokeAsync<IJSObjectReference>("import", "./_content/IndexedDb/idb.mjs")
             .AsTask());
     }
 

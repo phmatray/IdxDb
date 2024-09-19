@@ -4,6 +4,10 @@
  */
 const dbCache = new Map();
 
+export function sum(a, b) {
+  return a + b;
+}
+
 /**
  * Opens an IndexedDB database and caches the connection.
  * @param {string} dbName - The name of the database.
@@ -11,7 +15,7 @@ const dbCache = new Map();
  * @param {function} [upgradeCallback=null] - Optional callback for handling database upgrades.
  * @returns {Promise<IDBDatabase>} - A promise that resolves to the database instance.
  */
-async function openIndexedDB(dbName, version = 1, upgradeCallback = null) {
+export async function openIndexedDB(dbName, version = 1, upgradeCallback = null) {
   if (dbCache.has(dbName)) {
     return dbCache.get(dbName);
   }
