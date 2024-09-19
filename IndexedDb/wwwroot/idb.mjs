@@ -47,10 +47,8 @@ export async function openIndexedDB(dbName, version = 1, upgradeCallback = null)
  */
 export async function upgradeDatabase(dbName, newVersion, storeSchemas) {
   await openIndexedDB(dbName, newVersion, (db, event) => {
-    console.log(`Upgrading database: ${dbName} to version: ${newVersion}`);
     storeSchemas.forEach((schema) => {
       if (!db.objectStoreNames.contains(schema.name)) {
-        console.log(`Creating object store: ${schema.name}`);
         const store = db.createObjectStore(schema.name, schema.options);
         if (schema.indexes) {
           schema.indexes.forEach((index) => {
@@ -59,11 +57,9 @@ export async function upgradeDatabase(dbName, newVersion, storeSchemas) {
         }
       } else if (schema.modify) {
         // Handle modifications like adding indexes
-        console.log(`Modifying object store: ${schema.name}`);
         const store = event.target.transaction.objectStore(schema.name);
         schema.indexes.forEach((index) => {
           if (!store.indexNames.contains(index.name)) {
-            console.log(`Creating index: ${index.name} on keyPath: ${index.keyPath}`);
             store.createIndex(index.name, index.keyPath, { unique: index.unique });
           }
         });

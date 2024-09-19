@@ -8,7 +8,9 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.MinVer;
+using Nuke.Common.Tools.Npm;
 using Nuke.Common.Utilities.Collections;
+using Serilog;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
@@ -71,9 +73,24 @@ class Build : NukeBuild
                 .EnableNoBuild()
                 .EnableNoRestore());
         });
+    
+Target TestJest => _ => _
+    .Executes(() =>
+    {
+        // Redirect NPM output to Serilog
+        NpmTasks.NpmLogger = (outputType, text) => Log.Information(text);
+        
+        // Install NPM dependencies
+        NpmTasks.NpmInstall();
+        
+        // Run Jest tests
+        NpmTasks.NpmRun(new NpmRunSettings()
+            .SetCommand("test")
+            .SetProcessWorkingDirectory(RootDirectory / "IndexedDb.JsTests"));
+    });
 
     Target Pack => _ => _
-        .DependsOn(Test)
+        .DependsOn(Test, TestJest)
         .Executes(() =>
         {
             DotNetPack(s => s
