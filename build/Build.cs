@@ -33,8 +33,8 @@ class Build : NukeBuild
     [MinVer]
     readonly MinVer MinVer;
     
-    AbsolutePath OutputDirectory
-        => RootDirectory / "output";
+    AbsolutePath ArtifactsDirectory
+        => RootDirectory / "artifacts";
 
     public static int Main()
         => Execute<Build>(x => x.Pack);
@@ -43,7 +43,7 @@ class Build : NukeBuild
         .Before(Restore)
         .Executes(() =>
         {
-            OutputDirectory.CreateOrCleanDirectory();
+            ArtifactsDirectory.CreateOrCleanDirectory();
         });
 
     Target Restore => _ => _
@@ -81,7 +81,7 @@ Target TestJest => _ => _
         NpmTasks.NpmLogger = (outputType, text) => Log.Information(text);
         
         // Define the path to the Jest tests directory
-        var jestTestsDirectory = RootDirectory / "IdxDb.JsTests";
+        var jestTestsDirectory = RootDirectory / "src" / "tests" / "IdxDb.JsTests";
 
         // Install NPM dependencies
         NpmTasks.NpmInstall(new NpmInstallSettings()
@@ -100,7 +100,7 @@ Target TestJest => _ => _
             DotNetPack(s => s
                 .SetProject(Solution)
                 .SetConfiguration(Configuration)
-                .SetOutputDirectory(OutputDirectory)
+                .SetOutputDirectory(ArtifactsDirectory)
                 .EnableNoBuild()
                 .EnableNoRestore()
                 .SetIncludeSymbols(true)
@@ -114,7 +114,7 @@ Target TestJest => _ => _
         .Requires(() => NuGetApiKey)
         .Executes(() =>
         {
-            OutputDirectory
+            ArtifactsDirectory
                 .GlobFiles("*.nupkg")
                 .ForEach(package =>
                 {
@@ -125,7 +125,7 @@ Target TestJest => _ => _
                         .EnableSkipDuplicate());
                 });
 
-            OutputDirectory
+            ArtifactsDirectory
                 .GlobFiles("*.snupkg")
                 .ForEach(symbolsPackage =>
                 {

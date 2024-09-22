@@ -48,7 +48,7 @@
 
   <!-- Include logo -->
   <ItemGroup>
-    <Content Include="..\logo.png" Pack="true" PackagePath="">
+    <Content Include="..\..\..\logo.png" Pack="true" PackagePath="">
       <PackagePath>logo.png</PackagePath>
     </Content>
   </ItemGroup>

@@ -112,7 +112,7 @@ else
   private readonly Guid _defaultId = Guid.Parse("00000000-0000-0000-0000-000000000001");
   private int _filterAge;
   private int _peopleCount;
-  private string _message;
+  private string? _message;
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {

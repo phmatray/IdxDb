@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IdxDb\IdxDb.csproj" />
+    <ProjectReference Include="..\..\library\IdxDb\IdxDb.csproj" />
   </ItemGroup>
 
 </Project>

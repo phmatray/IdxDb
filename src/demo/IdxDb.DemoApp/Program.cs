@@ -1,6 +1,5 @@
 using IdxDb;
 using IdxDb.DemoApp.Services;
-using IdxDb;
 using IdxDb.DemoApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
