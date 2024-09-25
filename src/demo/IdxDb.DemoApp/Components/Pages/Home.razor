@@ -1,45 +1,121 @@
 @page "/"
 @inject StorageManager StorageManager
 @inject IndexedDb IndexedDb
+@inject NavigationManager NavigationManager
 
-<h1>Storage Manager</h1>
-
-<section>
-  <h4>Estimate</h4>
-  @if (_estimate != null)
+<MudGrid Class="pa-5">
+  <MudItem xs="12">
+    <MudText Typo="Typo.h4">Indexed DB</MudText>
+  </MudItem>
+  <MudItem xs="12">
+    <MudStack Row Justify="Justify.SpaceBetween">
+      <MudText Typo="Typo.h5">
+        Databases
+      </MudText>
+      <MudButton OnClick="CreateDatabases">Create Samples</MudButton>
+    </MudStack>
+    @if (_databases.Length > 0)
+    {
+      <MudSimpleTable>
+        <thead>
+        <th>Name</th>
+        <th>Version</th>
+        <th></th>
+        </thead>
+        <tbody>
+        @foreach (var db in _databases)
+        {
+          <tr @onclick="(e) => SelectDatabase(db.Name)">
+            <td>@db.Name</td>
+            <td>@db.Version</td>
+            <td>
+              <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteDatabase(db.Name)">
+                Delete
+              </MudButton>
+            </td>
+          </tr>
+        }
+        </tbody>
+      </MudSimpleTable>
+    }
+  </MudItem>
+  @if (_selectedDatabase != null)
   {
-    <pre><code>@_estimate</code></pre>
-    <p>
-      You're currently using about @_estimate.PercentUsed% of your
-      estimated storage quota (@_estimate.QuotaInMB).
-    </p>
+    <MudItem xs="12">
+      <MudText Typo="Typo.h5">Selected Database: @_selectedDatabase</MudText>
+      <MudCard>
+        
+      </MudCard>
+    </MudItem>
   }
-</section>
+</MudGrid>
 
-<section>
-  <h4>GetDirectory</h4>
-  @if (_directory != null)
-  {
-    <pre><code>@_directory</code></pre>
-  }
-</section>
-
+@* <h2>Storage Manager</h2> *@
+@* *@
+@* <section> *@
+@*   <h4>Estimate</h4> *@
+@*   @if (_estimate != null) *@
+@*   { *@
+@*     <pre><code>@_estimate</code></pre> *@
+@*     <p> *@
+@*       You're currently using about @_estimate.PercentUsed% of your *@
+@*       estimated storage quota (@_estimate.QuotaInMB). *@
+@*     </p> *@
+@*   } *@
+@* </section> *@
+@* *@
+@* <section> *@
+@*   <h4>GetDirectory</h4> *@
+@*   @if (_directory != null) *@
+@*   { *@
+@*     <pre><code>@_directory</code></pre> *@
+@*   } *@
+@* </section> *@
 
 @code {
 
+  private DatabaseInfo[] _databases = [];
+  private int _comparison = 0;
   private EstimateResult? _estimate = null;
   private object? _directory = null;
+  private string? _selectedDatabase;
 
-  protected override async Task OnAfterRenderAsync(bool firstRender)
+  protected override async Task OnInitializedAsync()
   {
-    if (firstRender)
-    {
-      _estimate = await StorageManager.Estimate();
-      _directory = await StorageManager.GetDirectory();
-      var open = await IndexedDb.Open("MyDatabase", 1);
+    _comparison = await IndexedDb.Cmp("MyMyDatabase", "MyDatabase");
+    _estimate = await StorageManager.Estimate();
+    _directory = await StorageManager.GetDirectory();
+    // var open = await IndexedDb.Open("MyDatabase", 1);
 
-      StateHasChanged();
+    // await CreateDatabases();
+    await RefreshDatabases();
+  }
+
+  private async Task CreateDatabases()
+  {
+    string[] dbNames = ["Alpha", "Beta", "Gamma"];
+    foreach (var dbName in dbNames)
+    {
+      await IndexedDb.Open(dbName);
     }
+    await RefreshDatabases();
+  }
+
+  private async Task DeleteDatabase(string dbName)
+  {
+    await IndexedDb.DeleteDatabase(dbName);
+    await RefreshDatabases();
+  }
+  
+  private async Task RefreshDatabases()
+  {
+    _databases = await IndexedDb.Databases();
+  }
+
+  private void SelectDatabase(string dbName)
+  {
+    _selectedDatabase = dbName;
+    // NavigationManager.NavigateTo($"/database/{dbName}");
   }
 
 }

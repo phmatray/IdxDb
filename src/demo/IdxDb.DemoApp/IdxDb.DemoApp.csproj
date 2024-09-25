@@ -16,4 +16,8 @@
     <ProjectReference Include="..\..\library\IdxDb\IdxDb.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="7.8.0" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,7 @@
 using IdxDb;
 using IdxDb.DemoApp.Services;
 using IdxDb.DemoApp.Components;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -13,6 +14,7 @@ services.AddRazorComponents()
     });
 
 services.AddIndexedDb();
+services.AddMudServices();
 
 services.AddScoped<IndexedDbInterop>();
 services.AddScoped<PersonRepository>();
