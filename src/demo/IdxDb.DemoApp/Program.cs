@@ -3,16 +3,20 @@ using IdxDb.DemoApp.Services;
 using IdxDb.DemoApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
+services.AddRazorComponents()
     .AddInteractiveServerComponents(config =>
     {
         config.DetailedErrors = builder.Environment.IsDevelopment();
     });
 
-builder.Services.AddScoped<IndexedDbInterop>();
-builder.Services.AddScoped<PersonRepository>();
+services.AddIndexedDb();
+
+services.AddScoped<IndexedDbInterop>();
+services.AddScoped<PersonRepository>();
+services.AddScoped<StorageManager>();
 
 var app = builder.Build();
 

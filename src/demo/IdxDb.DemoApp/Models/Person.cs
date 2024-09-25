@@ -2,7 +2,13 @@ namespace IdxDb.DemoApp.Models;
 
 public class Person
 {
-    public Guid Id { get; set; }
-    public string? Name { get; set; }
-    public int Age { get; set; }
+    [IndexedDbKeyPath(AutoIncrement = true)]
+    public required int Id { get; set; }
+
+    public required string FirstName { get; set; }
+
+    public required string LastName { get; set; }
+
+    [IndexedDbIndex("EmailIndex", Unique = true)]
+    public required string Email { get; set; }
 }

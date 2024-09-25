@@ -1,0 +1,41 @@
+﻿@page "/store-definition"
+@using System.Text.Json
+@using IdxDb.DemoApp.Models
+@using IdxDb.DemoApp.Services
+@inject IndexedDbInterop IndexedDb
+@inject PersonRepository PersonRepository
+@inject IJSRuntime JsRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<h1>IndexedDB Demo</h1>
+
+<pre>
+<code>
+@_json
+</code>
+</pre>
+
+@code
+{
+  
+  private string _json = "";
+  
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      var personType = typeof(Person);
+      var storeDefinition = personType.GenerateStoreDefinitionFromType();
+      var serializerOptions = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+      _json = JsonSerializer.Serialize(storeDefinition, serializerOptions);
+
+      StoreDefinition[] stores = [storeDefinition];
+      await IndexedDb.OpenIndexedDbAsync("myAppDB", 1, stores);
+      
+      StateHasChanged();
+    }
+  }
+
+}

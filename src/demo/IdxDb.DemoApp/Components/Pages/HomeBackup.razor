@@ -1,0 +1,326 @@
+﻿@page "/backup"
+@using IdxDb.DemoApp.Models
+@using IdxDb.DemoApp.Services
+@inject PersonRepository PersonRepository
+@inject IJSRuntime JsRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Home Backup</PageTitle>
+
+<h1>IndexedDB Demo</h1>
+
+@* <h3>Add a new person</h3> *@
+@* <EditForm Model="_editPerson" OnSubmit="AddPersonAsync"> *@
+@*   <DataAnnotationsValidator /> *@
+@*   <ValidationSummary /> *@
+@* *@
+@*   <div> *@
+@*     <label for="first-name">First name:</label> *@
+@*     <InputText id="first-name" @bind-Value="_editPerson.FirstName" /> *@
+@*   </div> *@
+@*    *@
+@*   <div> *@
+@*     <label for="last-name">Last name:</label> *@
+@*     <InputText id="last-name" @bind-Value="_editPerson.LastName" /> *@
+@*   </div> *@
+@* *@
+@*   <button type="submit">Submit</button> *@
+@* </EditForm> *@
+@* *@
+@* <h3>Filter People by Age</h3> *@
+@* <InputNumber @bind-Value="_filterAge" Placeholder="Enter age to filter" /> *@
+@* <button @onclick="FilterPeopleByAgeAsync">Filter</button> *@
+@* <button @onclick="ResetFilter">Reset</button> *@
+@* *@
+@* <h3>People (@_people.Length)</h3> *@
+@* @if (_people.Length > 0) *@
+@* { *@
+@*   <table> *@
+@*     <thead> *@
+@*     <tr> *@
+@*       <th>Person ID</th> *@
+@*       <th>Person Name</th> *@
+@*       <th>Person Age</th> *@
+@*       <th>Actions</th> *@
+@*     </tr> *@
+@*     </thead> *@
+@*     <tbody> *@
+@*     @foreach (var person in _people) *@
+@*     { *@
+@*       <tr key="@person.Id" @onclick="() => SelectPerson(person)"> *@
+@*         <td>@person.Id</td> *@
+@*         <td> *@
+@*           @if (_editPerson.Id == person.Id) *@
+@*           { *@
+@*             <InputText @bind-Value="_editPerson.Name"/> *@
+@*           } *@
+@*           else *@
+@*           { *@
+@*             @person.Name *@
+@*           } *@
+@*         </td> *@
+@*         <td> *@
+@*           @if (_editPerson.Id == person.Id) *@
+@*           { *@
+@*             <InputNumber @bind-Value="_editPerson.Age" /> *@
+@*           } *@
+@*           else *@
+@*           { *@
+@*             @person.Age *@
+@*           } *@
+@*         </td> *@
+@*         <td> *@
+@*           @if (_editPerson.Id == person.Id) *@
+@*           { *@
+@*             <button @onclick="UpdatePersonAsync">Update</button> *@
+@*             <button @onclick="CancelEdit">Cancel</button> *@
+@*           } *@
+@*           else *@
+@*           { *@
+@*             <button @onclick="() => SelectPerson(person)">Edit</button> *@
+@*             <button @onclick="() => DeletePersonAsync(person.Id)">Delete</button> *@
+@*           } *@
+@*         </td> *@
+@*       </tr> *@
+@*     } *@
+@*     </tbody> *@
+@*   </table> *@
+@* } *@
+@* else *@
+@* { *@
+@*   <p>No person found.</p> *@
+@* } *@
+@* *@
+@* <h3>Total People Count: @_peopleCount</h3> *@
+@* <button @onclick="GetPeopleCountAsync">Refresh Count</button> *@
+@* *@
+@* <h3>Clear All Records</h3> *@
+@* <button @onclick="ClearAllRecordsAsync">Clear Store</button> *@
+@* *@
+@* @if (!string.IsNullOrEmpty(_message)) *@
+@* { *@
+@* <div class="alert"> *@
+@*   @_message *@
+@* </div> *@
+@* } *@
+@* *@
+@* @code *@
+@* { *@
+@* *@
+@*   private Person[] _people = []; *@
+@*   private Person _editPerson = new(); *@
+@*   private readonly Guid _defaultId = Guid.Parse("00000000-0000-0000-0000-000000000001"); *@
+@*   private int _filterAge; *@
+@*   private int _peopleCount; *@
+@*   private string? _message; *@
+@* *@
+@*   protected override async Task OnAfterRenderAsync(bool firstRender) *@
+@*   { *@
+@*     if (firstRender) *@
+@*     { *@
+@*       // Initialize the database and retrieve all people *@
+@*       await InitializeDatabaseAsync(); *@
+@*        *@
+@*       StateHasChanged(); *@
+@*     } *@
+@*   } *@
+@* *@
+@*   private async Task InitializeDatabaseAsync() *@
+@*   { *@
+@*     try *@
+@*     { *@
+@*       _people = await PersonRepository.GetAllAsync(); *@
+@* *@
+@*       if (_people.Length == 0) *@
+@*       { *@
+@*         // If no people, add a default person *@
+@*         _editPerson = new Person { Id = _defaultId, Name = "Philippe", Age = 30 }; *@
+@*         await AddPersonAsync(); *@
+@*       } *@
+@* *@
+@*       // Get the total count *@
+@*       await GetPeopleCountAsync(); *@
+@*     } *@
+@*     catch (Exception ex) *@
+@*     { *@
+@*       _message = $"Error initializing database: {ex.Message}"; *@
+@*     } *@
+@*   } *@
+@* *@
+@*   private async Task AddPersonAsync() *@
+@*   { *@
+@*     if (string.IsNullOrWhiteSpace(_editPerson.Name)) *@
+@*     { *@
+@*       _message = "Name is required."; *@
+@*       return; *@
+@*     } *@
+@* *@
+@*     if (_editPerson.Age <= 0) *@
+@*     { *@
+@*       _message = "Age must be a positive number."; *@
+@*       return; *@
+@*     } *@
+@* *@
+@*     try *@
+@*     { *@
+@*       // Create a new person *@
+@*       var personToAdd = new Person *@
+@*       { *@
+@*         Id = Guid.NewGuid(), *@
+@*         Name = _editPerson.Name, *@
+@*         Age = _editPerson.Age *@
+@*       }; *@
+@* *@
+@*       // Add the person to the database *@
+@*       await PersonRepository.AddOneAsync(personToAdd); *@
+@* *@
+@*       // Update the list of people *@
+@*       _people = _people.Append(personToAdd).ToArray(); *@
+@* *@
+@*       // Clear the form *@
+@*       _editPerson = new Person(); *@
+@* *@
+@*       _message = "Person added successfully."; *@
+@*     } *@
+@*     catch (Exception ex) *@
+@*     { *@
+@*       _message = $"Error adding person: {ex.Message}"; *@
+@*     } *@
+@*   } *@
+@* *@
+@*   private void SelectPerson(Person person) *@
+@*   { *@
+@*     _editPerson = new Person *@
+@*     { *@
+@*       Id = person.Id, *@
+@*       Name = person.Name, *@
+@*       Age = person.Age *@
+@*     }; *@
+@* *@
+@*     _message = $"Editing person: {person.Name}"; *@
+@*   } *@
+@*    *@
+@*   private async Task UpdatePersonAsync() *@
+@*     { *@
+@*         if (string.IsNullOrWhiteSpace(_editPerson.Name)) *@
+@*         { *@
+@*             _message = "Name is required."; *@
+@*             return; *@
+@*         } *@
+@* *@
+@*         if (_editPerson.Age <= 0) *@
+@*         { *@
+@*             _message = "Age must be a positive number."; *@
+@*             return; *@
+@*         } *@
+@* *@
+@*         try *@
+@*         { *@
+@*             // Update the person in the database *@
+@*             await PersonRepository.UpdateOneAsync(_editPerson); *@
+@* *@
+@*             // Update the local list *@
+@*             var index = Array.FindIndex(_people, p => p.Id == _editPerson.Id); *@
+@*             if (index != -1) *@
+@*             { *@
+@*                 _people[index] = _editPerson; *@
+@*             } *@
+@* *@
+@*             // Clear the edit form *@
+@*             _editPerson = new Person(); *@
+@* *@
+@*             _message = "Person updated successfully."; *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             _message = $"Error updating person: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task DeletePersonAsync(Guid id) *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             // Delete the person from the database *@
+@*             await PersonRepository.DeleteOneAsync(id); *@
+@* *@
+@*             // Remove from the local list *@
+@*             _people = _people.Where(p => p.Id != id).ToArray(); *@
+@* *@
+@*             _message = "Person deleted successfully."; *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             _message = $"Error deleting person: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task FilterPeopleByAgeAsync() *@
+@*     { *@
+@*         if (_filterAge <= 0) *@
+@*         { *@
+@*             _message = "Please enter a valid age to filter."; *@
+@*             return; *@
+@*         } *@
+@* *@
+@*         try *@
+@*         { *@
+@*             // Use the index to filter people by age *@
+@*             _people = await PersonRepository.getGetPeopleByAgeAsync(_filterAge); *@
+@* *@
+@*             _message = $"Filtered people by age: {_filterAge}"; *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             _message = $"Error filtering people: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task ResetFilter() *@
+@*     { *@
+@*         _filterAge = 0; *@
+@*         await InitializeDatabaseAsync(); *@
+@*         _message = "Filter reset."; *@
+@*     } *@
+@* *@
+@*     private async Task GetPeopleCountAsync() *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             _peopleCount = await PersonRepository.CountAsync(); *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             _message = $"Error counting people: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private async Task ClearAllRecordsAsync() *@
+@*     { *@
+@*         bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete all records?"); *@
+@*         if (!confirmed) *@
+@*         { *@
+@*             _message = "Clear store operation canceled."; *@
+@*             return; *@
+@*         } *@
+@* *@
+@*         try *@
+@*         { *@
+@*             await PersonRepository.ClearStoreAsync(); *@
+@*             _people = []; *@
+@*             _peopleCount = 0; *@
+@*             _message = "All records have been cleared."; *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             _message = $"Error clearing records: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+@* *@
+@*     private void CancelEdit() *@
+@*     { *@
+@*         _editPerson = new Person(); *@
+@*         _message = "Edit canceled."; *@
+@*     } *@
+@* *@
+@* } *@
