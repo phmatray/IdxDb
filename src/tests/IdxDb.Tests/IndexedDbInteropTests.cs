@@ -1,35 +1,54 @@
 using Microsoft.JSInterop;
-using Moq;
+using Microsoft.JSInterop.Infrastructure;
+using FakeItEasy;
 
 namespace IdxDb.Tests;
 
 [TestFixture]
 public class IndexedDbInteropTests
 {
-    private Mock<IJSRuntime> _jsRuntimeMock;
+    private IJSRuntime _jsRuntime;
     private IndexedDbInterop _indexedDbInterop;
-    private Mock<IJSObjectReference> _moduleMock;
+    private IJSObjectReference _module;
 
     [SetUp]
-    public void Setup()
+    public async Task Setup()
     {
-        _jsRuntimeMock = new Mock<IJSRuntime>();
-        _moduleMock = new Mock<IJSObjectReference>();
+        _jsRuntime = A.Fake<IJSRuntime>();
+        _module = A.Fake<IJSObjectReference>();
 
-        // Setup the JSRuntime to return the module mock
-        _jsRuntimeMock
-            .Setup(js => js.InvokeAsync<IJSObjectReference>(
-                It.IsAny<string>(),
-                It.IsAny<object[]>()))
-            .ReturnsAsync(_moduleMock.Object);
+        // Setup the JSRuntime to return the module fake
+        A.CallTo(() => _jsRuntime.InvokeAsync<IJSObjectReference>(
+                A<string>.Ignored,
+                A<object[]>.Ignored))
+            .Returns(_module);
 
-        _indexedDbInterop = new IndexedDbInterop(_jsRuntimeMock.Object);
+        _indexedDbInterop = new IndexedDbInterop(_jsRuntime);
+        
+        // Initialize the database to pass the check
+        await _indexedDbInterop.OpenIndexedDbAsync("TestDb", 1, new[]
+        {
+            new StoreDefinition
+            {
+                Name = "TestStore",
+                Options = new StoreOptions { KeyPath = "id", AutoIncrement = true },
+                Indexes = Array.Empty<IndexDefinition>()
+            }
+        });
     }
 
     [TearDown]
     public async Task TearDown()
     {
         await _indexedDbInterop.DisposeAsync();
+        if (_module is IAsyncDisposable asyncDisposable)
+        {
+            await asyncDisposable.DisposeAsync();
+        }
+        else if (_module is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
     }
 
     [Test]
@@ -44,13 +63,13 @@ public class IndexedDbInteropTests
         await _indexedDbInterop.AddOneAsync(dbName, storeName, item);
 
         // Assert
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "addOne",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(storeName) &&
-                    args[2].Equals(item))),
-            Times.Once);
+                    args[2].Equals(item))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -61,22 +80,22 @@ public class IndexedDbInteropTests
         string storeName = "TestStore";
         var expectedData = new[] { new { Id = 1, Name = "TestItem1" }, new { Id = 2, Name = "TestItem2" } };
 
-        _moduleMock.Setup(m => m.InvokeAsync<object[]>(
+        A.CallTo(() => _module.InvokeAsync<object[]>(
                 "getAll",
-                It.IsAny<object[]>()))
-            .ReturnsAsync(expectedData);
+                A<object[]>.Ignored))
+            .Returns(expectedData);
 
         // Act
         var result = await _indexedDbInterop.GetAllAsync<object>(dbName, storeName);
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedData));
-        _moduleMock.Verify(m => m.InvokeAsync<object[]>(
+        A.CallTo(() => _module.InvokeAsync<object[]>(
                 "getAll",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
-                    args[1].Equals(storeName))),
-            Times.Once);
+                    args[1].Equals(storeName))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -88,23 +107,23 @@ public class IndexedDbInteropTests
         int id = 1;
         var expectedItem = new { Id = 1, Name = "TestItem1" };
 
-        _moduleMock.Setup(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<object>(
                 "getOne",
-                It.IsAny<object[]>()))
-            .ReturnsAsync(expectedItem);
+                A<object[]>.Ignored))
+            .Returns(expectedItem);
 
         // Act
         var result = await _indexedDbInterop.GetOneAsync<object, int>(dbName, storeName, id);
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedItem));
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<object>(
                 "getOne",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(storeName) &&
-                    args[2].Equals(id))),
-            Times.Once);
+                    args[2].Equals(id))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -119,13 +138,13 @@ public class IndexedDbInteropTests
         await _indexedDbInterop.UpdateOneAsync(dbName, storeName, item);
 
         // Assert
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "updateOne",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(storeName) &&
-                    args[2].Equals(item))),
-            Times.Once);
+                    args[2].Equals(item))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -140,13 +159,13 @@ public class IndexedDbInteropTests
         await _indexedDbInterop.DeleteOneAsync(dbName, storeName, id);
 
         // Assert
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "deleteOne",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(storeName) &&
-                    args[2].Equals(id))),
-            Times.Once);
+                    args[2].Equals(id))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -172,13 +191,13 @@ public class IndexedDbInteropTests
         await _indexedDbInterop.UpgradeDatabaseAsync(dbName, newVersion, storeSchemas);
 
         // Assert
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "upgradeDatabase",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(newVersion) &&
-                    args[2].Equals(storeSchemas))),
-            Times.Once);
+                    args[2].Equals(storeSchemas))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -197,13 +216,13 @@ public class IndexedDbInteropTests
         await _indexedDbInterop.AddManyAsync(dbName, storeName, items);
 
         // Assert
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "addMany",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(storeName) &&
-                    args[2].Equals(items))),
-            Times.Once);
+                    args[2].Equals(items))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -220,15 +239,15 @@ public class IndexedDbInteropTests
         await _indexedDbInterop.CreateIndexAsync(dbName, storeName, indexName, keyPath, unique);
 
         // Assert
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "createIndex",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(storeName) &&
                     args[2].Equals(indexName) &&
                     args[3].Equals(keyPath) &&
-                    args[4].Equals(unique))),
-            Times.Once);
+                    args[4].Equals(unique))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -241,24 +260,24 @@ public class IndexedDbInteropTests
         string query = "TestItem";
         var expectedData = new[] { new { Id = 1, Name = "TestItem" } };
 
-        _moduleMock.Setup(m => m.InvokeAsync<object[]>(
+        A.CallTo(() => _module.InvokeAsync<object[]>(
                 "getAllByIndex",
-                It.IsAny<object[]>()))
-            .ReturnsAsync(expectedData);
+                A<object[]>.Ignored))
+            .Returns(expectedData);
 
         // Act
         var result = await _indexedDbInterop.GetAllByIndexAsync<object>(dbName, storeName, indexName, query);
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedData));
-        _moduleMock.Verify(m => m.InvokeAsync<object[]>(
+        A.CallTo(() => _module.InvokeAsync<object[]>(
                 "getAllByIndex",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(storeName) &&
                     args[2].Equals(indexName) &&
-                    args[3].Equals(query))),
-            Times.Once);
+                    args[3].Equals(query))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -277,18 +296,18 @@ public class IndexedDbInteropTests
         });
 
         // Assert
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "beginTransaction",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
                     args[1].Equals(storeNames) &&
-                    args[2].Equals(mode))),
-            Times.Once);
+                    args[2].Equals(mode))))
+            .MustHaveHappenedOnceExactly();
 
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "commitTransaction",
-                It.IsAny<object[]>()),
-            Times.Once);
+                A<object[]>.Ignored))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -299,22 +318,22 @@ public class IndexedDbInteropTests
         string storeName = "TestStore";
         int expectedCount = 5;
 
-        _moduleMock.Setup(m => m.InvokeAsync<int>(
+        A.CallTo(() => _module.InvokeAsync<int>(
                 "count",
-                It.IsAny<object[]>()))
-            .ReturnsAsync(expectedCount);
+                A<object[]>.Ignored))
+            .Returns(expectedCount);
 
         // Act
         var result = await _indexedDbInterop.CountAsync(dbName, storeName);
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedCount));
-        _moduleMock.Verify(m => m.InvokeAsync<int>(
+        A.CallTo(() => _module.InvokeAsync<int>(
                 "count",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
-                    args[1].Equals(storeName))),
-            Times.Once);
+                    args[1].Equals(storeName))))
+            .MustHaveHappenedOnceExactly();
     }
 
     [Test]
@@ -328,11 +347,11 @@ public class IndexedDbInteropTests
         await _indexedDbInterop.ClearStoreAsync(dbName, storeName);
 
         // Assert
-        _moduleMock.Verify(m => m.InvokeAsync<object>(
+        A.CallTo(() => _module.InvokeAsync<IJSVoidResult>(
                 "clearStore",
-                It.Is<object[]>(args =>
+                A<object[]>.That.Matches(args =>
                     args[0].Equals(dbName) &&
-                    args[1].Equals(storeName))),
-            Times.Once);
+                    args[1].Equals(storeName))))
+            .MustHaveHappenedOnceExactly();
     }
 }

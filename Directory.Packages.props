@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Microsoft packages -->
+    <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.JSInterop" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <!-- Testing packages -->
+    <PackageVersion Include="NUnit" Version="4.3.2" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.9.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="FakeItEasy" Version="8.3.0" />
+    <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <!-- UI packages -->
+    <PackageVersion Include="MudBlazor" Version="8.7.0" />
+  </ItemGroup>
+</Project>

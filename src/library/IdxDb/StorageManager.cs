@@ -34,7 +34,7 @@ public record EstimateResult
     public long Usage { get; init; }
     
     [JsonPropertyName("usageDetails")]
-    public object UsageDetails { get; init; }
+    public object? UsageDetails { get; init; }
     
     public double PercentUsed
         => (Usage / Quota) * 100;

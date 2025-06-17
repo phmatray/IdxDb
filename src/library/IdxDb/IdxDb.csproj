@@ -1,36 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
     <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
     
     <!-- Package Metadata -->
+    <IsPackable>true</IsPackable>
     <PackageId>IdxDb</PackageId>
     <Version>1.0.0</Version>
-    <Authors>Philippe Matray</Authors>
-    <Company>Atypical Consulting SRL</Company>
     <Product>IdxDb</Product>
     <Description>A Blazor library for IndexedDB operations via JavaScript interop.</Description>
     <PackageTags>Blazor; IndexedDB; JavaScript Interop; Data Storage</PackageTags>
-    <RepositoryUrl>https://github.com/phmatray/IdxDb</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/phmatray/IdxDb</PackageProjectUrl>
     <PackageIcon>.\logo.png</PackageIcon>
     <Summary>Provides easy access to IndexedDB in Blazor applications.</Summary>
-    <Copyright>© Atypical Consulting SRL, 2024</Copyright>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     
     <!-- Build Properties -->
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <IncludeSymbols>true</IncludeSymbols>
-    <IncludeSource>true</IncludeSource>
-    <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <RootNamespace>IdxDb</RootNamespace>
   </PropertyGroup>
 
@@ -39,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.8"/>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

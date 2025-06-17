@@ -35,12 +35,13 @@ public class IndexedDbInterop : IAsyncDisposable
     }
 
     // Ensure that the database is initialized before performing operations
-    private async Task EnsureDbInitializedAsync()
+    private Task EnsureDbInitializedAsync()
     {
         if (!_isDbInitialized)
         {
             throw new InvalidOperationException("Database is not initialized. Please call OpenIndexedDbAsync first.");
         }
+        return Task.CompletedTask;
     }
 
     /// <summary>

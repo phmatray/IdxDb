@@ -8,7 +8,9 @@ public static class TypeExtensions
     {
         var storeDefinition = new StoreDefinition
         {
-            Name = type.Name
+            Name = type.Name,
+            Options = null!, // Will be set below
+            Indexes = null!  // Will be set below
         };
 
         var properties = type.GetProperties();
