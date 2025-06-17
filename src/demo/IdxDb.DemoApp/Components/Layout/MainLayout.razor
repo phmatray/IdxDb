@@ -10,7 +10,10 @@
     IndexedDB Manager
   </MudAppBar>
   <MudDrawer Open="true" ClipMode="DrawerClipMode.Always">
-
+    <MudNavMenu>
+      <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+      <MudNavLink Href="/linq-demo" Icon="@Icons.Material.Filled.Code">LINQ Demo</MudNavLink>
+    </MudNavMenu>
   </MudDrawer>
   <MudMainContent>
     @Body

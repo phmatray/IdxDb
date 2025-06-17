@@ -6,7 +6,7 @@ public static class DependencyInjections
 {
     public static IServiceCollection AddIndexedDb(this IServiceCollection services)
     {
-        services.AddScoped<IndexedDb>();
+        // Extension point for future services
         return services;
     }
     

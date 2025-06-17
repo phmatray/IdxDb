@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -10,13 +10,13 @@
   <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
   <link rel="stylesheet" href="app.css"/>
   <link rel="stylesheet" href="IdxDb.DemoApp.styles.css"/>
-  <HeadOutlet @rendermode="InteractiveServer"/>
+  <HeadOutlet/>
 </head>
 
 <body>
-<Routes @rendermode="@(new InteractiveServerRenderMode(prerender: false))"/>
-<script src="_content/MudBlazor/MudBlazor.min.js"></script>
+<Routes/>
 <script src="_framework/blazor.web.js"></script>
+<script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>
 
 </html>

@@ -38,4 +38,9 @@
     </Content>
   </ItemGroup>
 
+  <!-- Include wwwroot content files -->
+  <ItemGroup>
+    <None Include="wwwroot\**" Pack="true" PackagePath="staticwebassets\" />
+  </ItemGroup>
+
 </Project>

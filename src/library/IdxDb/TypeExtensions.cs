@@ -8,7 +8,7 @@ public static class TypeExtensions
     {
         var storeDefinition = new StoreDefinition
         {
-            Name = type.Name,
+            Name = GetStoreNameForType(type),
             Options = null!, // Will be set below
             Indexes = null!  // Will be set below
         };
@@ -48,5 +48,26 @@ public static class TypeExtensions
         storeDefinition.Indexes = indexes.ToArray();
 
         return storeDefinition;
+    }
+    
+    private static string GetStoreNameForType(Type type)
+    {
+        // Use a pluralized, lowercase version of the type name as the store name
+        var name = type.Name;
+        
+        // Simple pluralization
+        if (!name.EndsWith("s"))
+        {
+            if (name.EndsWith("y"))
+            {
+                name = name[..^1] + "ies";
+            }
+            else
+            {
+                name += "s";
+            }
+        }
+        
+        return name.ToLowerInvariant();
     }
 }

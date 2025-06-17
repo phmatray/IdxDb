@@ -1,0 +1,453 @@
+@page "/linq-demo"
+@using Microsoft.JSInterop
+@using MudBlazor
+@inject IJSRuntime JSRuntime
+@inject ILogger<LinqDemo> Logger
+@inject ISnackbar Snackbar
+@inject IndexedDbInterop IndexedDbInterop
+@implements IAsyncDisposable
+
+<MudGrid Class="pa-5">
+    <MudItem xs="12">
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <div>
+                <MudText Typo="Typo.h4">IndexedDB LINQ API Demo</MudText>
+                <MudText Typo="Typo.body2" Class="mb-4">
+                    This demo showcases the new LINQ-like API for IndexedDB, similar to Entity Framework Core.
+                </MudText>
+            </div>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="ClearDatabase" StartIcon="@Icons.Material.Filled.DeleteForever">
+                Clear Database
+            </MudButton>
+        </MudStack>
+    </MudItem>
+    
+    <MudItem xs="12" md="6">
+        <MudCard>
+            <MudCardContent>
+                <MudText Typo="Typo.h6">Add Product</MudText>
+                <MudTextField @bind-Value="_newProduct.Name" Label="Name" Margin="Margin.Dense" />
+                <MudTextField @bind-Value="_newProduct.Description" Label="Description" Margin="Margin.Dense" />
+                <MudNumericField @bind-Value="_newProduct.Price" Label="Price" Margin="Margin.Dense" />
+                <MudNumericField @bind-Value="_newProduct.Stock" Label="Stock" Margin="Margin.Dense" />
+                <MudCheckBox @bind-Value="_newProduct.IsActive" Label="Is Active" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="AddProduct">Add Product</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    
+    <MudItem xs="12" md="6">
+        <MudCard>
+            <MudCardContent>
+                <MudText Typo="Typo.h6">Query Options</MudText>
+                <MudTextField @bind-Value="_searchTerm" Label="Search by Name" Margin="Margin.Dense" 
+                              Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" />
+                <MudNumericField @bind-Value="_minPrice" Label="Min Price" Margin="Margin.Dense" />
+                <MudNumericField @bind-Value="_maxPrice" Label="Max Price" Margin="Margin.Dense" />
+                <MudCheckBox @bind-Value="_activeOnly" Label="Active Products Only" />
+                <MudSelect @bind-Value="_sortBy" Label="Sort By" Margin="Margin.Dense">
+                    <MudSelectItem Value="@("Name")">Name</MudSelectItem>
+                    <MudSelectItem Value="@("Price")">Price</MudSelectItem>
+                    <MudSelectItem Value="@("Stock")">Stock</MudSelectItem>
+                </MudSelect>
+                <MudCheckBox @bind-Value="_sortDescending" Label="Sort Descending" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="QueryProducts">Query Products</MudButton>
+                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="ResetFilters">Reset</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    
+    <MudItem xs="12">
+        <MudCard>
+            <MudCardContent>
+                <MudText Typo="Typo.h6">Products (@_totalCount total, showing @_products.Count)</MudText>
+                @if (_products.Any())
+                {
+                    <MudTable Items="@_products" Hover="true" Striped="true" Dense="true">
+                        <HeaderContent>
+                            <MudTh>ID</MudTh>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Description</MudTh>
+                            <MudTh>Price</MudTh>
+                            <MudTh>Stock</MudTh>
+                            <MudTh>Active</MudTh>
+                            <MudTh>Actions</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="ID">@context.Id</MudTd>
+                            <MudTd DataLabel="Name">@context.Name</MudTd>
+                            <MudTd DataLabel="Description">@context.Description</MudTd>
+                            <MudTd DataLabel="Price">$@context.Price.ToString("F2")</MudTd>
+                            <MudTd DataLabel="Stock">@context.Stock</MudTd>
+                            <MudTd DataLabel="Active">
+                                <MudCheckBox Value="@context.IsActive" ReadOnly="true" />
+                            </MudTd>
+                            <MudTd>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" 
+                                               OnClick="() => EditProduct(context)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" 
+                                               Color="Color.Error" OnClick="() => DeleteProduct(context)" />
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                    
+                    <div class="mt-4 d-flex justify-space-between align-center">
+                        <MudSelect @bind-Value="_pageSize" Label="Page Size" Style="width: 100px;">
+                            <MudSelectItem Value="5">5</MudSelectItem>
+                            <MudSelectItem Value="10">10</MudSelectItem>
+                            <MudSelectItem Value="25">25</MudSelectItem>
+                        </MudSelect>
+                        
+                        <MudPagination Count="@_totalPages" Selected="@_currentPage" SelectedChanged="OnPageChanged" />
+                    </div>
+                }
+                else
+                {
+                    <MudText>No products found.</MudText>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    
+    <MudItem xs="12">
+        <MudCard>
+            <MudCardContent>
+                <MudText Typo="Typo.h6">Statistics</MudText>
+                <MudGrid>
+                    <MudItem xs="12" md="3">
+                        <MudText>Total Products: @_totalCount</MudText>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudText>Active Products: @_activeCount</MudText>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudText>Total Value: $@_totalValue.ToString("F2")</MudText>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudText>Average Price: $@_averagePrice.ToString("F2")</MudText>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+<MudDialog @bind-Visible="_showEditDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Edit Product</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_editingProduct.Name" Label="Name" Margin="Margin.Dense" />
+        <MudTextField @bind-Value="_editingProduct.Description" Label="Description" Margin="Margin.Dense" />
+        <MudNumericField @bind-Value="_editingProduct.Price" Label="Price" Margin="Margin.Dense" />
+        <MudNumericField @bind-Value="_editingProduct.Stock" Label="Stock" Margin="Margin.Dense" />
+        <MudCheckBox @bind-Value="_editingProduct.IsActive" Label="Is Active" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => _showEditDialog = false">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="UpdateProduct">Update</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private IndexedDbContext? _context;
+    private IIndexedDbSet<Product>? _productSet;
+    
+    private List<Product> _products = new();
+    private Product _newProduct = new() { Name = "New Product", Description = "", Price = 0, Stock = 0, IsActive = true };
+    private Product _editingProduct = new() { Name = "" };
+    private bool _showEditDialog;
+    
+    // Query parameters
+    private string _searchTerm = "";
+    private decimal _minPrice = 0;
+    private decimal _maxPrice = 1000;
+    private bool _activeOnly = false;
+    private string _sortBy = "Name";
+    private bool _sortDescending = false;
+    
+    // Pagination
+    private int _currentPage = 1;
+    private int _pageSize = 10;
+    private int _totalPages = 1;
+    private int _totalCount = 0;
+    
+    // Statistics
+    private int _activeCount = 0;
+    private decimal _totalValue = 0;
+    private decimal _averagePrice = 0;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Initialize the IndexedDB context
+            _context = new IndexedDbContext(JSRuntime, "ProductDatabase");
+            await _context.InitializeAsync(typeof(Product));
+            
+            // Get the product set
+            _productSet = _context.Set<Product>();
+            
+            // Add some sample data if the store is empty
+            var count = await _productSet.CountAsync();
+            if (count == 0)
+            {
+                await AddSampleData();
+            }
+            
+            // Load initial data
+            await LoadProducts();
+            await LoadStatistics();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to initialize IndexedDB");
+            
+            // If it's a missing store error, show a helpful message
+            if (ex.Message.Contains("missing required stores"))
+            {
+                Snackbar.Add("Database schema mismatch detected. Please clear your browser's IndexedDB for this site or refresh the page.", Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add($"Failed to initialize database: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+    
+    private async Task AddSampleData()
+    {
+        var sampleProducts = new[]
+        {
+            new Product { Name = "Laptop", Description = "High-performance laptop", Price = 999.99m, Stock = 10, IsActive = true, CreatedAt = DateTime.UtcNow },
+            new Product { Name = "Mouse", Description = "Wireless mouse", Price = 29.99m, Stock = 50, IsActive = true, CreatedAt = DateTime.UtcNow },
+            new Product { Name = "Keyboard", Description = "Mechanical keyboard", Price = 79.99m, Stock = 25, IsActive = true, CreatedAt = DateTime.UtcNow },
+            new Product { Name = "Monitor", Description = "4K display monitor", Price = 399.99m, Stock = 15, IsActive = true, CreatedAt = DateTime.UtcNow },
+            new Product { Name = "Headphones", Description = "Noise-cancelling headphones", Price = 199.99m, Stock = 20, IsActive = false, CreatedAt = DateTime.UtcNow }
+        };
+        
+        foreach (var product in sampleProducts)
+        {
+            await _productSet!.AddAsync(product);
+        }
+    }
+    
+    private async Task AddProduct()
+    {
+        if (string.IsNullOrWhiteSpace(_newProduct.Name))
+            return;
+            
+        try
+        {
+            var product = new Product
+            {
+                Name = _newProduct.Name,
+                Description = _newProduct.Description,
+                Price = _newProduct.Price,
+                Stock = _newProduct.Stock,
+                IsActive = _newProduct.IsActive,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            await _productSet!.AddAsync(product);
+            
+            // Reset form
+            _newProduct = new() { Name = "New Product", Description = "", Price = 0, Stock = 0, IsActive = true };
+            
+            // Reload data
+            await LoadProducts();
+            await LoadStatistics();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to add product");
+        }
+    }
+    
+    private void EditProduct(Product product)
+    {
+        _editingProduct = new Product
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Stock = product.Stock,
+            IsActive = product.IsActive,
+            CreatedAt = product.CreatedAt
+        };
+        _showEditDialog = true;
+    }
+    
+    private async Task UpdateProduct()
+    {
+        try
+        {
+            await _productSet!.UpdateAsync(_editingProduct);
+            _showEditDialog = false;
+            await LoadProducts();
+            await LoadStatistics();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to update product");
+        }
+    }
+    
+    private async Task DeleteProduct(Product product)
+    {
+        try
+        {
+            await _productSet!.DeleteAsync(product);
+            await LoadProducts();
+            await LoadStatistics();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to delete product");
+        }
+    }
+    
+    private async Task QueryProducts()
+    {
+        _currentPage = 1;
+        await LoadProducts();
+    }
+    
+    private async Task LoadProducts()
+    {
+        try
+        {
+            // Start with the base query
+            IQueryable<Product> query = _productSet!;
+            
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(_searchTerm))
+            {
+                var searchLower = _searchTerm.ToLower();
+                query = query.Where(p => p.Name.ToLower().Contains(searchLower) || 
+                                       p.Description.ToLower().Contains(searchLower));
+            }
+            
+            query = query.Where(p => p.Price >= _minPrice && p.Price <= _maxPrice);
+            
+            if (_activeOnly)
+            {
+                query = query.Where(p => p.IsActive);
+            }
+            
+            // Get total count before pagination
+            _totalCount = await ((IIndexedDbSet<Product>)query).CountAsync();
+            _totalPages = (int)Math.Ceiling(_totalCount / (double)_pageSize);
+            
+            // Apply sorting
+            query = _sortBy switch
+            {
+                "Price" => _sortDescending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+                "Stock" => _sortDescending ? query.OrderByDescending(p => p.Stock) : query.OrderBy(p => p.Stock),
+                _ => _sortDescending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name)
+            };
+            
+            // Apply pagination
+            query = query.Skip((_currentPage - 1) * _pageSize).Take(_pageSize);
+            
+            // Execute query
+            _products = (await ((IIndexedDbSet<Product>)query).ToArrayAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load products");
+        }
+    }
+    
+    private async Task LoadStatistics()
+    {
+        try
+        {
+            _totalCount = await _productSet!.CountAsync();
+            _activeCount = await _productSet.CountAsync(p => p.IsActive);
+            
+            var allProducts = await _productSet.ToArrayAsync();
+            _totalValue = allProducts.Sum(p => p.Price * p.Stock);
+            _averagePrice = allProducts.Any() ? allProducts.Average(p => p.Price) : 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load statistics");
+        }
+    }
+    
+    private async Task OnPageChanged(int page)
+    {
+        _currentPage = page;
+        await LoadProducts();
+    }
+    
+    private async Task ResetFilters()
+    {
+        _searchTerm = "";
+        _minPrice = 0;
+        _maxPrice = 1000;
+        _activeOnly = false;
+        _sortBy = "Name";
+        _sortDescending = false;
+        _currentPage = 1;
+        await LoadProducts();
+    }
+    
+    private async Task ClearDatabase()
+    {
+        try
+        {
+            var result = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to clear the entire database? This action cannot be undone.");
+            if (!result) return;
+            
+            // Dispose current context
+            if (_context != null)
+            {
+                await _context.DisposeAsync();
+                _context = null;
+                _productSet = null;
+            }
+            
+            // Delete the database
+            await IndexedDbInterop.DeleteDatabaseAsync("ProductDatabase");
+            
+            Snackbar.Add("Database cleared successfully. Refreshing...", Severity.Success);
+            
+            // Reload the page to reinitialize
+            await Task.Delay(1000);
+            await JSRuntime.InvokeVoidAsync("location.reload");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to clear database");
+            Snackbar.Add($"Failed to clear database: {ex.Message}", Severity.Error);
+        }
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        if (_context != null)
+        {
+            await _context.DisposeAsync();
+        }
+    }
+    
+    public class Product
+    {
+        [IndexedDbKeyPath(AutoIncrement = true)]
+        public int Id { get; set; }
+        
+        public required string Name { get; set; }
+        public string Description { get; set; } = "";
+        public decimal Price { get; set; }
+        public int Stock { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+}

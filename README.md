@@ -11,8 +11,10 @@ A Blazor library that provides seamless interaction with **IndexedDB** via JavaS
 - [Getting Started](#getting-started)
     - [Database Initialization](#database-initialization)
     - [Using IndexedDbInterop](#using-indexeddbinterop)
+    - [Using LINQ API](#using-linq-api)
 - [API Reference](#api-reference)
     - [IndexedDbInterop](#indexeddbinterop)
+    - [LINQ API](#linq-api)
 - [Examples](#examples)
     - [CRUD Operations](#crud-operations)
     - [Filtering by Index](#filtering-by-index)
@@ -29,6 +31,7 @@ A Blazor library that provides seamless interaction with **IndexedDB** via JavaS
 
 - **Easy Setup**: Simplify the configuration and use of IndexedDB in Blazor applications.
 - **Type Safety**: Utilize generics for strong typing and compile-time checks.
+- **LINQ Support**: Query IndexedDB using familiar LINQ syntax similar to Entity Framework Core.
 - **Async Operations**: All methods are asynchronous, providing non-blocking data operations.
 - **Transactions Support**: Execute multiple operations within a single transaction.
 - **Indexing**: Create and query indexes for efficient data retrieval.
@@ -146,6 +149,137 @@ The `IndexedDbInterop` class provides direct methods to interact with IndexedDB.
    }
    ```
 
+### **Using LINQ API**
+
+The library now includes a LINQ-like API that provides a familiar, Entity Framework Core-style syntax for querying IndexedDB.
+
+1. **Initialize IndexedDbContext**
+
+   ```csharp
+   @using IdxDb
+   @inject IJSRuntime JSRuntime
+
+   @code {
+       private IndexedDbContext? _context;
+       private IIndexedDbSet<Product>? _products;
+
+       protected override async Task OnInitializedAsync()
+       {
+           // Create context
+           _context = new IndexedDbContext(JSRuntime, "MyDatabase");
+           
+           // Initialize with entity types
+           await _context.InitializeAsync(typeof(Product), typeof(Customer));
+           
+           // Get entity sets
+           _products = _context.Set<Product>();
+       }
+   }
+   ```
+
+2. **Define Entity Classes**
+
+   ```csharp
+   public class Product
+   {
+       [IndexedDbKeyPath(AutoIncrement = true)]
+       public int Id { get; set; }
+       
+       public required string Name { get; set; }
+       public decimal Price { get; set; }
+       public int Stock { get; set; }
+       public bool IsActive { get; set; }
+   }
+   ```
+
+3. **Perform LINQ Queries**
+
+   ```csharp
+   // Basic queries
+   var allProducts = await _products.ToArrayAsync();
+   var activeProducts = await _products.Where(p => p.IsActive).ToArrayAsync();
+   
+   // Filtering with multiple conditions
+   var expensiveProducts = await _products
+       .Where(p => p.Price > 100 && p.Stock > 0)
+       .ToArrayAsync();
+   
+   // Ordering
+   var sortedByPrice = await _products
+       .OrderBy(p => p.Price)
+       .ToArrayAsync();
+   
+   var sortedByNameDesc = await _products
+       .OrderByDescending(p => p.Name)
+       .ToArrayAsync();
+   
+   // Pagination
+   var pagedResults = await _products
+       .OrderBy(p => p.Name)
+       .Skip(20)
+       .Take(10)
+       .ToArrayAsync();
+   
+   // First/Single operations
+   var firstProduct = await _products.FirstAsync();
+   var firstExpensive = await _products.FirstAsync(p => p.Price > 1000);
+   var singleProduct = await _products.SingleAsync(p => p.Id == 5);
+   
+   // Aggregations
+   var totalCount = await _products.CountAsync();
+   var expensiveCount = await _products.CountAsync(p => p.Price > 100);
+   var hasAnyActive = await _products.AnyAsync(p => p.IsActive);
+   
+   // Complex queries
+   var complexQuery = await _products
+       .Where(p => p.IsActive && p.Stock > 0)
+       .OrderByDescending(p => p.Price)
+       .Skip(10)
+       .Take(5)
+       .ToArrayAsync();
+   ```
+
+4. **CRUD Operations**
+
+   ```csharp
+   // Add single entity
+   var newProduct = new Product { Name = "Laptop", Price = 999.99m, Stock = 10, IsActive = true };
+   await _products.AddAsync(newProduct);
+   
+   // Add multiple entities
+   var products = new[] { product1, product2, product3 };
+   await _products.AddRangeAsync(products);
+   
+   // Update entity
+   product.Price = 899.99m;
+   await _products.UpdateAsync(product);
+   
+   // Delete entity
+   await _products.DeleteAsync(product);
+   // Or by key
+   await _products.DeleteAsync(productId);
+   
+   // Find by key
+   var product = await _products.FindAsync(5);
+   
+   // Clear all entities
+   await _products.ClearAsync();
+   ```
+
+5. **Limitations and Notes**
+
+   - **Select Projections**: Currently, Select operations that change the entity type are not supported directly. Use `ToArrayAsync()` first, then apply Select in memory:
+     ```csharp
+     var products = await _products.ToArrayAsync();
+     var projections = products.Select(p => new { p.Name, p.Price }).ToArray();
+     ```
+   
+   - **Joins**: Join operations between different entity types are not yet supported.
+   
+   - **Expression Limitations**: Complex expressions involving method calls on entity properties may not be supported. Keep Where clauses simple for best compatibility.
+   
+   - **Performance**: All queries currently fetch all data and apply filters in memory. Future versions may optimize this for better performance with large datasets.
+
 ## **API Reference**
 
 ### **IndexedDbInterop**
@@ -191,6 +325,68 @@ public IndexedDbRepository(IndexedDbInterop indexedDbInterop, string dbName, str
 - `ClearStoreAsync()`
 - `UpgradeDatabaseAsync(string dbName, int newVersion, object[] storeSchemas)`
 - `DisposeAsync()`
+
+### **LINQ API**
+
+The LINQ API provides a familiar, Entity Framework Core-style interface for IndexedDB operations.
+
+#### **IndexedDbContext**
+
+The main entry point for LINQ operations, similar to EF Core's DbContext.
+
+```csharp
+public class IndexedDbContext : IAsyncDisposable
+{
+    public IndexedDbContext(IJSRuntime jsRuntime, string databaseName);
+    public IIndexedDbSet<TEntity> Set<TEntity>() where TEntity : class;
+    public Task InitializeAsync(params Type[] entityTypes);
+    public ValueTask DisposeAsync();
+}
+```
+
+#### **IIndexedDbSet\<TEntity>**
+
+Represents a queryable collection of entities from an IndexedDB object store.
+
+```csharp
+public interface IIndexedDbSet<TEntity> : IQueryable<TEntity>
+{
+    // CRUD Operations
+    Task AddAsync(TEntity entity);
+    Task AddRangeAsync(IEnumerable<TEntity> entities);
+    Task UpdateAsync(TEntity entity);
+    Task DeleteAsync(TEntity entity);
+    Task DeleteAsync<TKey>(TKey key);
+    Task<TEntity?> FindAsync<TKey>(TKey key);
+    Task ClearAsync();
+    
+    // Query Execution
+    Task<TEntity[]> ToArrayAsync();
+    Task<List<TEntity>> ToListAsync();
+    Task<TEntity> FirstAsync();
+    Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<TEntity?> FirstOrDefaultAsync();
+    Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<TEntity> SingleAsync();
+    Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<TEntity?> SingleOrDefaultAsync();
+    Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<int> CountAsync();
+    Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<bool> AnyAsync();
+    Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
+}
+```
+
+#### **Supported LINQ Methods**
+
+- `Where` - Filter entities based on conditions
+- `OrderBy` / `OrderByDescending` - Sort results
+- `Skip` / `Take` - Implement pagination
+- `First` / `FirstOrDefault` - Get first element
+- `Single` / `SingleOrDefault` - Get single element
+- `Count` - Count entities
+- `Any` - Check if any entities exist
 
 ## **Examples**
 
