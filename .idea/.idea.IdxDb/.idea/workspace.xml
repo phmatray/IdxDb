@@ -14,50 +14,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ebdeb13-babd-4729-842b-74ee5c19b0ef" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/App.razor" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/LinqDemo.razor" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/_Imports.razor" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/wwwroot/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/IIndexedDbOrderedSet.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/IIndexedDbSet.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/IndexedDbContext.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/IndexedDbExtensions.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/IndexedDbOrderedSet.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/IndexedDbQueryProvider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/IndexedDbSet.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/wwwroot/indexeddb-linq.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tests/IdxDb.Tests/IndexedDbLinqTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/indexLayout.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.IndexedDb/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Directory.Packages.props" beforeDir="false" afterPath="$PROJECT_DIR$/Directory.Packages.props" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdxDb.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/IdxDb.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/App.razor" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/App.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Layout/MainLayout.razor" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Layout/MainLayout.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/Error.razor" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/Error.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/Home.razor" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/Home.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/HomeBackup.razor" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/Page_StoreDefinition.razor" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/IdxDb.DemoApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/IdxDb.DemoApp.csproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Data/AppDbContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Data/Product.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/ModelBuilder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.IdxDb/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/LinqDemo.razor" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Components/Pages/LinqDemo.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Properties/launchSettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/Services/PersonRepository.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/wwwroot/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/demo/IdxDb.DemoApp/wwwroot/app.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/DependencyInjections.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/library/IdxDb/DependencyInjections.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/IdxDb.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/library/IdxDb/IdxDb.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/IndexedDb.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/IndexedDbInterop.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/library/IdxDb/IndexedDbInterop.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/IndexedDbRepository.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/TypeExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/library/IdxDb/TypeExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/wwwroot/idb-old.mjs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/wwwroot/idb-storage-manager.mjs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/wwwroot/idb.mjs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tests/IdxDb.Tests/IndexedDbInteropTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/IdxDb.Tests/IndexedDbInteropTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/library/IdxDb/Linq/IndexedDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/library/IdxDb/Linq/IndexedDbContext.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -222,7 +185,7 @@
       <workItem from="1731933181709" duration="65000" />
       <workItem from="1735211140739" duration="2000" />
       <workItem from="1750145536338" duration="7289000" />
-      <workItem from="1750152835190" duration="4617000" />
+      <workItem from="1750152835190" duration="6657000" />
     </task>
     <task id="LOCAL-00001" summary="feat: initial commit">
       <option name="closed" value="true" />
@@ -304,7 +267,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750147744472</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="feat: implement LINQ support for IndexedDB with new context and query provider">
+      <option name="closed" value="true" />
+      <created>1750161720092</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1750161720092</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -336,7 +307,8 @@
     <MESSAGE value="docs: upgrade README.md" />
     <MESSAGE value="wip: add functions to idb.mjs" />
     <MESSAGE value="feat: add new project configuration and update dependencies for .NET 9.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add new project configuration and update dependencies for .NET 9.0" />
+    <MESSAGE value="feat: implement LINQ support for IndexedDB with new context and query provider" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement LINQ support for IndexedDB with new context and query provider" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

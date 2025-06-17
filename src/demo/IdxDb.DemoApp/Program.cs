@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using IdxDb;
 using IdxDb.DemoApp;
+using IdxDb.DemoApp.Data;
 using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -15,5 +16,8 @@ builder.Services.AddMudServices();
 
 builder.Services.AddScoped<IndexedDbInterop>();
 builder.Services.AddScoped<StorageManager>();
+
+// Register the application's DbContext
+builder.Services.AddScoped<AppDbContext>();
 
 await builder.Build().RunAsync();

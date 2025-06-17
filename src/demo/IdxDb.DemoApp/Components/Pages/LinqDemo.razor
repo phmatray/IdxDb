@@ -1,10 +1,11 @@
 @page "/linq-demo"
 @using Microsoft.JSInterop
 @using MudBlazor
+@using IdxDb.DemoApp.Data
+@inject AppDbContext DbContext
 @inject IJSRuntime JSRuntime
 @inject ILogger<LinqDemo> Logger
 @inject ISnackbar Snackbar
-@inject IndexedDbInterop IndexedDbInterop
 @implements IAsyncDisposable
 
 <MudGrid Class="pa-5">
@@ -154,9 +155,6 @@
 </MudDialog>
 
 @code {
-    private IndexedDbContext? _context;
-    private IIndexedDbSet<Product>? _productSet;
-    
     private List<Product> _products = new();
     private Product _newProduct = new() { Name = "New Product", Description = "", Price = 0, Stock = 0, IsActive = true };
     private Product _editingProduct = new() { Name = "" };
@@ -185,15 +183,11 @@
     {
         try
         {
-            // Initialize the IndexedDB context
-            _context = new IndexedDbContext(JSRuntime, "ProductDatabase");
-            await _context.InitializeAsync(typeof(Product));
-            
-            // Get the product set
-            _productSet = _context.Set<Product>();
+            // Initialize the database
+            await DbContext.InitializeAsync(typeof(Product));
             
             // Add some sample data if the store is empty
-            var count = await _productSet.CountAsync();
+            var count = await DbContext.Products.CountAsync();
             if (count == 0)
             {
                 await AddSampleData();
@@ -232,7 +226,7 @@
         
         foreach (var product in sampleProducts)
         {
-            await _productSet!.AddAsync(product);
+            await DbContext.Products.AddAsync(product);
         }
     }
     
@@ -253,7 +247,7 @@
                 CreatedAt = DateTime.UtcNow
             };
             
-            await _productSet!.AddAsync(product);
+            await DbContext.Products.AddAsync(product);
             
             // Reset form
             _newProduct = new() { Name = "New Product", Description = "", Price = 0, Stock = 0, IsActive = true };
@@ -287,7 +281,7 @@
     {
         try
         {
-            await _productSet!.UpdateAsync(_editingProduct);
+            await DbContext.Products.UpdateAsync(_editingProduct);
             _showEditDialog = false;
             await LoadProducts();
             await LoadStatistics();
@@ -302,7 +296,7 @@
     {
         try
         {
-            await _productSet!.DeleteAsync(product);
+            await DbContext.Products.DeleteAsync(product);
             await LoadProducts();
             await LoadStatistics();
         }
@@ -323,7 +317,7 @@
         try
         {
             // Start with the base query
-            IQueryable<Product> query = _productSet!;
+            IQueryable<Product> query = DbContext.Products;
             
             // Apply filters
             if (!string.IsNullOrWhiteSpace(_searchTerm))
@@ -368,10 +362,10 @@
     {
         try
         {
-            _totalCount = await _productSet!.CountAsync();
-            _activeCount = await _productSet.CountAsync(p => p.IsActive);
+            _totalCount = await DbContext.Products.CountAsync();
+            _activeCount = await DbContext.Products.CountAsync(p => p.IsActive);
             
-            var allProducts = await _productSet.ToArrayAsync();
+            var allProducts = await DbContext.Products.ToArrayAsync();
             _totalValue = allProducts.Sum(p => p.Price * p.Stock);
             _averagePrice = allProducts.Any() ? allProducts.Average(p => p.Price) : 0;
         }
@@ -406,16 +400,8 @@
             var result = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to clear the entire database? This action cannot be undone.");
             if (!result) return;
             
-            // Dispose current context
-            if (_context != null)
-            {
-                await _context.DisposeAsync();
-                _context = null;
-                _productSet = null;
-            }
-            
             // Delete the database
-            await IndexedDbInterop.DeleteDatabaseAsync("ProductDatabase");
+            await DbContext.DeleteDatabaseAsync();
             
             Snackbar.Add("Database cleared successfully. Refreshing...", Severity.Success);
             
@@ -432,22 +418,6 @@
     
     public async ValueTask DisposeAsync()
     {
-        if (_context != null)
-        {
-            await _context.DisposeAsync();
-        }
-    }
-    
-    public class Product
-    {
-        [IndexedDbKeyPath(AutoIncrement = true)]
-        public int Id { get; set; }
-        
-        public required string Name { get; set; }
-        public string Description { get; set; } = "";
-        public decimal Price { get; set; }
-        public int Stock { get; set; }
-        public bool IsActive { get; set; }
-        public DateTime CreatedAt { get; set; }
+        await DbContext.DisposeAsync();
     }
 }
