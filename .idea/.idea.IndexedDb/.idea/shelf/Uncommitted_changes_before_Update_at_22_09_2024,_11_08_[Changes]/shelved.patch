@@ -1,0 +1,217 @@
+Index: README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># **IndexedDb Blazor Library**\n\nA Blazor library that provides seamless interaction with IndexedDB via JavaScript interop. This library simplifies data storage and retrieval in Blazor applications by offering a straightforward API for IndexedDB operations.\n\n![NuGet](https://img.shields.io/nuget/v/IndexedDb) ![License](https://img.shields.io/github/license/phmatray/IndexedDb) ![Build](https://img.shields.io/github/actions/workflow/status/phmatray/IndexedDb/build.yml)\n\n## **Table of Contents**\n\n- [Features](#features)\n- [Installation](#installation)\n- [Getting Started](#getting-started)\n    - [Database Initialization](#database-initialization)\n    - [Using the Repository](#using-the-repository)\n- [API Reference](#api-reference)\n    - [IndexedDbInterop](#indexeddbinterop)\n    - [IndexedDbRepository\\<TItem>](#indexeddbrepositorytitem)\n- [Examples](#examples)\n    - [CRUD Operations](#crud-operations)\n    - [Transactions](#transactions)\n- [Contributing](#contributing)\n- [License](#license)\n- [Acknowledgments](#acknowledgments)\n\n---\n\n## **Features**\n\n- **Easy Setup**: Simplify the configuration and use of IndexedDB in Blazor applications.\n- **Type Safety**: Utilize generics for strong typing and compile-time checks.\n- **Async Operations**: All methods are asynchronous, providing non-blocking data operations.\n- **Transactions Support**: Execute multiple operations within a single transaction.\n- **Indexing**: Create and query indexes for efficient data retrieval.\n- **Schema Migration**: Upgrade database schemas with versioning and store schemas.\n\n## **Installation**\n\nInstall the package via NuGet Package Manager:\n\n```bash\ndotnet add package IndexedDb --version 1.0.0\n```\n\nOr via the NuGet Package Manager UI in Visual Studio by searching for **IndexedDb**.\n\n## **Getting Started**\n\n### **Database Initialization**\n\nBefore using the library, you need to define your database schema and initialize it.\n\n```csharp\n@inject IJSRuntime JSRuntime\n\n@code {\n    private IndexedDbInterop _indexedDbInterop;\n\n    protected override async Task OnInitializedAsync()\n    {\n        _indexedDbInterop = new IndexedDbInterop(JSRuntime);\n\n        var storeSchemas = new[]\n        {\n            new\n            {\n                name = \"Customers\",\n                options = new { keyPath = \"id\", autoIncrement = true },\n                indexes = new[]\n                {\n                    new { name = \"NameIndex\", keyPath = \"name\", unique = false }\n                }\n            }\n        };\n\n        await _indexedDbInterop.UpgradeDatabaseAsync(\"MyDatabase\", 1, storeSchemas);\n    }\n\n    public async ValueTask DisposeAsync()\n    {\n        if (_indexedDbInterop != null)\n        {\n            await _indexedDbInterop.DisposeAsync();\n        }\n    }\n}\n```\n\n### **Using the Repository**\n\nCreate a repository for your data model to simplify data operations.\n\n```csharp\npublic class Customer\n{\n    public int Id { get; set; }\n    public string Name { get; set; }\n    // Additional properties...\n}\n\n@inject IJSRuntime JSRuntime\n\n@code {\n    private IndexedDbRepository<Customer> _customerRepository;\n\n    protected override async Task OnInitializedAsync()\n    {\n        _customerRepository = new IndexedDbRepository<Customer>(JSRuntime, \"MyDatabase\", \"Customers\");\n\n        // Add a new customer\n        var newCustomer = new Customer { Name = \"John Doe\" };\n        await _customerRepository.AddOneAsync(newCustomer);\n\n        // Get all customers\n        var customers = await _customerRepository.GetAllAsync();\n    }\n\n    public async ValueTask DisposeAsync()\n    {\n        if (_customerRepository != null)\n        {\n            await _customerRepository.DisposeAsync();\n        }\n    }\n}\n```\n\n## **API Reference**\n\n### **IndexedDbInterop**\n\nThe `IndexedDbInterop` class provides methods to interact directly with IndexedDB.\n\n#### **Methods**\n\n- `AddOneAsync(string dbName, string storeName, object item)`\n- `GetAllAsync<T>(string dbName, string storeName)`\n- `GetOneAsync<TRecord, TKey>(string dbName, string storeName, TKey id)`\n- `UpdateOneAsync(string dbName, string storeName, object item)`\n- `DeleteOneAsync<TKey>(string dbName, string storeName, TKey id)`\n- `UpgradeDatabaseAsync(string dbName, int newVersion, object[] storeSchemas)`\n- `AddManyAsync(string dbName, string storeName, object[] items)`\n- `CreateIndexAsync(string dbName, string storeName, string indexName, string keyPath, bool unique = false)`\n- `GetAllByIndexAsync<T>(string dbName, string storeName, string indexName, object query)`\n- `ExecuteTransactionAsync(string dbName, string[] storeNames, string mode, Func<Task> transactionBody)`\n- `CountAsync(string dbName, string storeName)`\n- `ClearStoreAsync(string dbName, string storeName)`\n\n### **IndexedDbRepository\\<TItem>**\n\nThe `IndexedDbRepository<TItem>` class simplifies data operations by setting the database name, store name, and item type.\n\n#### **Constructor**\n\n```csharp\npublic IndexedDbRepository(IJSRuntime jsRuntime, string dbName, string storeName)\n```\n\n#### **Methods**\n\n- `AddOneAsync(TItem item)`\n- `AddManyAsync(TItem[] items)`\n- `GetAllAsync()`\n- `GetOneAsync<TKey>(TKey id)`\n- `UpdateOneAsync(TItem item)`\n- `DeleteOneAsync<TKey>(TKey id)`\n- `CountAsync()`\n- `ClearStoreAsync()`\n\n## **Examples**\n\n### **CRUD Operations**\n\n#### **Adding an Item**\n\n```csharp\nvar newCustomer = new Customer { Name = \"Alice\" };\nawait _customerRepository.AddOneAsync(newCustomer);\n```\n\n#### **Retrieving Items**\n\n```csharp\nvar customers = await _customerRepository.GetAllAsync();\n```\n\n#### **Updating an Item**\n\n```csharp\nvar customer = customers.FirstOrDefault();\nif (customer != null)\n{\n    customer.Name = \"Alice Smith\";\n    await _customerRepository.UpdateOneAsync(customer);\n}\n```\n\n#### **Deleting an Item**\n\n```csharp\nif (customer != null)\n{\n    await _customerRepository.DeleteOneAsync(customer.Id);\n}\n```\n\n### **Transactions**\n\n```csharp\nawait _customerRepository.ExecuteTransactionAsync(async () =>\n{\n    await _customerRepository.AddOneAsync(new Customer { Name = \"Bob\" });\n    await _customerRepository.AddOneAsync(new Customer { Name = \"Carol\" });\n});\n```\n\n## **Contributing**\n\nContributions are welcome! Please follow these steps:\n\n1. Fork the repository.\n2. Create a new branch: `git checkout -b feature/your-feature-name`.\n3. Commit your changes: `git commit -am 'Add new feature'`.\n4. Push to the branch: `git push origin feature/your-feature-name`.\n5. Submit a pull request.\n\nPlease ensure all new code is covered by unit tests and adheres to the existing coding standards.\n\n## **License**\n\nThis project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.\n\n## **Acknowledgments**\n\n- **[Nuke Build](https://nuke.build/)**: For build automation.\n- **[MinVer](https://github.com/adamralph/minver)**: For versioning based on Git tags.\n- **[IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)**: The underlying technology enabling this library.\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/README.md b/README.md
+--- a/README.md	(revision 857a32d5f7d061e9c2648ef17cacacc3bc227bba)
++++ b/README.md	(date 1726682601128)
+@@ -2,7 +2,7 @@
+ 
+ A Blazor library that provides seamless interaction with IndexedDB via JavaScript interop. This library simplifies data storage and retrieval in Blazor applications by offering a straightforward API for IndexedDB operations.
+ 
+-![NuGet](https://img.shields.io/nuget/v/IndexedDb) ![License](https://img.shields.io/github/license/phmatray/IndexedDb) ![Build](https://img.shields.io/github/actions/workflow/status/phmatray/IndexedDb/build.yml)
++![NuGet](https://img.shields.io/nuget/v/IndexedDb) ![License](https://img.shields.io/github/license/phmatray/IndexedDb)
+ 
+ ## **Table of Contents**
+ 
+Index: IndexedDb.DemoApp/Services/PersonManager.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using FormLang.BlazorApp.Models;\n\nnamespace IndexedDb.DemoApp.Services;\n\npublic class PersonManager(IndexedDbInterop indexedDbInterop)\n{\n    public static string DbName => \"demo\";\n    public static string StoreName => \"persons\";\n\n    public async Task AddPersonAsync(Person formModel)\n        => await indexedDbInterop.AddOneAsync(DbName, StoreName, formModel);\n\n    public async Task<Person[]> GetAllPersonsAsync()\n        => await indexedDbInterop.GetAllAsync<Person>(DbName, StoreName);\n\n    public async Task<Person?> GetPersonAsync(string id)\n        => await indexedDbInterop.GetOneAsync<Person, string>(DbName, StoreName, id);\n\n    public async Task UpdatePersonAsync(Person formModel)\n        => await indexedDbInterop.UpdateOneAsync(DbName, StoreName, formModel);\n\n    public async Task DeletePersonAsync(string id)\n        => await indexedDbInterop.DeleteOneAsync(DbName, StoreName, id);\n\n    public async ValueTask DisposeAsync()\n        => await indexedDbInterop.DisposeAsync();\n}
+===================================================================
+diff --git a/IndexedDb.DemoApp/Services/PersonManager.cs b/IndexedDb.DemoApp/Services/PersonManager.cs
+--- a/IndexedDb.DemoApp/Services/PersonManager.cs	(revision 857a32d5f7d061e9c2648ef17cacacc3bc227bba)
++++ b/IndexedDb.DemoApp/Services/PersonManager.cs	(date 1726682955299)
+@@ -1,27 +1,7 @@
+-using FormLang.BlazorApp.Models;
++using IndexedDb.DemoApp.Models;
++using Microsoft.JSInterop;
+ 
+ namespace IndexedDb.DemoApp.Services;
+ 
+-public class PersonManager(IndexedDbInterop indexedDbInterop)
+-{
+-    public static string DbName => "demo";
+-    public static string StoreName => "persons";
+-
+-    public async Task AddPersonAsync(Person formModel)
+-        => await indexedDbInterop.AddOneAsync(DbName, StoreName, formModel);
+-
+-    public async Task<Person[]> GetAllPersonsAsync()
+-        => await indexedDbInterop.GetAllAsync<Person>(DbName, StoreName);
+-
+-    public async Task<Person?> GetPersonAsync(string id)
+-        => await indexedDbInterop.GetOneAsync<Person, string>(DbName, StoreName, id);
+-
+-    public async Task UpdatePersonAsync(Person formModel)
+-        => await indexedDbInterop.UpdateOneAsync(DbName, StoreName, formModel);
+-
+-    public async Task DeletePersonAsync(string id)
+-        => await indexedDbInterop.DeleteOneAsync(DbName, StoreName, id);
+-
+-    public async ValueTask DisposeAsync()
+-        => await indexedDbInterop.DisposeAsync();
+-}
+\ No newline at end of file
++public class PersonRepository(IJSRuntime jsRuntime)
++    : IndexedDbRepository<Person>(jsRuntime, "db", "persons");
+\ No newline at end of file
+Index: IndexedDb.DemoApp/Components/Pages/Home.razor
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>@page \"/\"\n@using FormLang.BlazorApp.Models\n@using IndexedDb.DemoApp.Services\n@inject PersonManager PersonManager\n@rendermode InteractiveServer\n\n<PageTitle>Home</PageTitle>\n\n<h1>IndexedDB Demo</h1>\n\n<h3>Add a new person</h3>\n<EditForm Model=\"_editPerson\" OnSubmit=\"AddPersonAsync\">\n  <DataAnnotationsValidator />\n  <ValidationSummary />\n\n  <div>\n    <label for=\"name\">Name:</label>\n    <InputText id=\"name\" @bind-Value=\"_editPerson.Name\" />\n  </div>\n \n  <div>\n    <label for=\"age\">Age:</label>\n    <InputNumber id=\"age\" @bind-Value=\"_editPerson.Age\" />\n  </div>\n\n  <button type=\"submit\">Submit</button>\n</EditForm>\n\n<h3>People</h3>\n@if (_people.Length > 0)\n{\n  <table>\n    <thead>\n    <tr>\n      <th>Person ID</th>\n      <th>Person Name</th>\n      <th>Person Age</th>\n    </tr>\n    </thead>\n    <tbody>\n    @foreach (var person in _people)\n    {\n      <tr key=\"@person.Id\" @onclick=\"() => SelectPerson(person)\">\n        <td>@person.Id</td>\n        <td>@person.Name</td>\n        <td>@person.Age</td>\n      </tr>\n    }\n    </tbody>\n  </table>\n}\nelse\n{\n  <p>No person found.</p>\n}\n\n@code\n{\n\n  private Person[] _people = [];\n  private Person _editPerson = new();\n  private readonly Guid _defaultId = Guid.Parse(\"00000000-0000-0000-0000-000000000001\");\n\n  protected override async Task OnAfterRenderAsync(bool firstRender)\n  {\n    if (firstRender)\n    {\n      // try to get the person from the database\n      _people = await PersonManager.GetAllPersonsAsync();\n      \n      \n      // if the person is not found, add a new person\n      if (_people.Length == 0)\n      {\n        _editPerson = new Person { Id = _defaultId, Name = \"Philippe\", Age = 30 };\n        await AddPersonAsync();\n      }\n      \n      StateHasChanged();\n    }\n  }\n  \n  private async Task AddPersonAsync()\n  {\n    // create a new person\n    var personToAdd = new Person\n    {\n      Id = Guid.NewGuid(),\n      Name = _editPerson.Name,\n      Age = _editPerson.Age\n    };\n    \n    // add the person to the database\n    await PersonManager.AddPersonAsync(personToAdd);\n    \n    // update the list of people\n    _people = _people.Append(personToAdd).ToArray();\n    \n    // clear the form\n    _editPerson = new Person();\n  }\n  \n  private void SelectPerson(Person person)\n  {\n    _editPerson = person;\n  }\n\n}\n
+===================================================================
+diff --git a/IndexedDb.DemoApp/Components/Pages/Home.razor b/IndexedDb.DemoApp/Components/Pages/Home.razor
+--- a/IndexedDb.DemoApp/Components/Pages/Home.razor	(revision 857a32d5f7d061e9c2648ef17cacacc3bc227bba)
++++ b/IndexedDb.DemoApp/Components/Pages/Home.razor	(date 1726683889377)
+@@ -1,7 +1,5 @@
+ @page "/"
+-@using FormLang.BlazorApp.Models
+-@using IndexedDb.DemoApp.Services
+-@inject PersonManager PersonManager
++@inject PersonRepository PersonRepository
+ @rendermode InteractiveServer
+ 
+ <PageTitle>Home</PageTitle>
+@@ -66,8 +64,7 @@
+     if (firstRender)
+     {
+       // try to get the person from the database
+-      _people = await PersonManager.GetAllPersonsAsync();
+-      
++      _people = await PersonRepository.GetAllAsync();
+       
+       // if the person is not found, add a new person
+       if (_people.Length == 0)
+@@ -91,7 +88,7 @@
+     };
+     
+     // add the person to the database
+-    await PersonManager.AddPersonAsync(personToAdd);
++    await PersonRepository.AddOneAsync(personToAdd);
+     
+     // update the list of people
+     _people = _people.Append(personToAdd).ToArray();
+Index: IndexedDb/wwwroot/idb.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/**\n * A cache to store opened database instances to prevent reopening.\n * @type {Map<string, IDBDatabase>}\n */\nconst dbCache = new Map();\n\n/**\n * Opens an IndexedDB database and caches the connection.\n * @param {string} dbName - The name of the database.\n * @param {number} [version=1] - The version number of the database.\n * @param {function} [upgradeCallback=null] - Optional callback for handling database upgrades.\n * @returns {Promise<IDBDatabase>} - A promise that resolves to the database instance.\n */\nasync function openIndexedDB(dbName, version = 1, upgradeCallback = null) {\n  if (dbCache.has(dbName)) {\n    return dbCache.get(dbName);\n  }\n\n  return new Promise((resolve, reject) => {\n    const request = indexedDB.open(dbName, version);\n\n    request.onupgradeneeded = (event) => {\n      const db = event.target.result;\n      if (upgradeCallback) {\n        upgradeCallback(db);\n      }\n    };\n\n    request.onsuccess = (event) => {\n      const db = event.target.result;\n      dbCache.set(dbName, db);\n      resolve(db);\n    };\n\n    request.onerror = (event) => {\n      reject(event.target.error);\n    };\n  });\n}\n\n/**\n * Adds a single item to an object store.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @param {object} item - The item to add.\n * @returns {Promise<boolean>} - A promise that resolves to true if the operation is successful.\n */\nexport async function addOne(dbName, storeName, item) {\n  try {\n    const db = await openIndexedDB(dbName, storeName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readwrite');\n      const store = transaction.objectStore(storeName);\n      const request = store.add(item);\n\n      request.onsuccess = () => resolve(true);\n      request.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n\n/**\n * Retrieves all items from an object store.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @returns {Promise<Array>} - A promise that resolves to an array of items.\n */\nexport async function getAll(dbName, storeName) {\n  try {\n    const db = await openIndexedDB(dbName, storeName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readonly');\n      const store = transaction.objectStore(storeName);\n      const request = store.getAll();\n\n      request.onsuccess = (event) => resolve(event.target.result);\n      request.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n\n/**\n * Retrieves a single item by its key from an object store.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @param {*} id - The key of the item to retrieve.\n * @returns {Promise<object>} - A promise that resolves to the item, or undefined if not found.\n */\nexport async function getOne(dbName, storeName, id) {\n  try {\n    const db = await openIndexedDB(dbName, storeName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readonly');\n      const store = transaction.objectStore(storeName);\n      const request = store.get(id);\n\n      request.onsuccess = (event) => resolve(event.target.result);\n      request.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n\n/**\n * Updates an existing item in an object store.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @param {object} item - The item to update.\n * @returns {Promise<boolean>} - A promise that resolves to true if the operation is successful.\n */\nexport async function updateOne(dbName, storeName, item) {\n  try {\n    const db = await openIndexedDB(dbName, storeName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readwrite');\n      const store = transaction.objectStore(storeName);\n      const request = store.put(item);\n\n      request.onsuccess = () => resolve(true);\n      request.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n\n/**\n * Deletes an item from an object store by its key.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @param {*} id - The key of the item to delete.\n * @returns {Promise<boolean>} - A promise that resolves to true if the operation is successful.\n */\nexport async function deleteOne(dbName, storeName, id) {\n  try {\n    const db = await openIndexedDB(dbName, storeName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readwrite');\n      const store = transaction.objectStore(storeName);\n      const request = store.delete(id);\n\n      request.onsuccess = () => resolve(true);\n      request.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n\n/**\n * Upgrades the database schema, adding or modifying object stores and indexes.\n * @param {string} dbName - The name of the database.\n * @param {number} newVersion - The new version number for the database.\n * @param {Array<object>} storeSchemas - An array of store schema definitions.\n * @returns {Promise<void>}\n */\nexport async function upgradeDatabase(dbName, newVersion, storeSchemas) {\n  await openIndexedDB(dbName, newVersion, (db) => {\n    storeSchemas.forEach((schema) => {\n      if (!db.objectStoreNames.contains(schema.name)) {\n        const store = db.createObjectStore(schema.name, schema.options);\n        if (schema.indexes) {\n          schema.indexes.forEach((index) => {\n            store.createIndex(index.name, index.keyPath, { unique: index.unique });\n          });\n        }\n      } else if (schema.modify) {\n        // Handle modifications like adding indexes\n        const store = event.currentTarget.transaction.objectStore(schema.name);\n        schema.indexes.forEach((index) => {\n          if (!store.indexNames.contains(index.name)) {\n            store.createIndex(index.name, index.keyPath, { unique: index.unique });\n          }\n        });\n      }\n    });\n  });\n}\n\n/**\n * Adds multiple items to an object store in a single transaction.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @param {Array<object>} items - An array of items to add.\n * @returns {Promise<boolean>} - A promise that resolves to true if the operation is successful.\n */\nexport async function addMany(dbName, storeName, items) {\n  try {\n    const db = await openIndexedDB(dbName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readwrite');\n      const store = transaction.objectStore(storeName);\n\n      items.forEach((item) => {\n        store.add(item);\n      });\n\n      transaction.oncomplete = () => resolve(true);\n      transaction.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n\n/**\n * Creates an index on an object store.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @param {string} indexName - The name of the index to create.\n * @param {string|string[]} keyPath - The key path(s) for the index.\n * @param {boolean} [unique=false] - Whether the index should enforce unique values.\n * @returns {Promise<void>}\n */\nexport async function createIndex(dbName, storeName, indexName, keyPath, unique = false) {\n  await upgradeDatabase(dbName, undefined, [\n    {\n      name: storeName,\n      modify: true,\n      indexes: [{ name: indexName, keyPath: keyPath, unique: unique }],\n    },\n  ]);\n}\n\n/**\n * Retrieves all items that match a query on a specific index.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @param {string} indexName - The name of the index to query.\n * @param {*} query - The query value or IDBKeyRange.\n * @returns {Promise<Array>} - A promise that resolves to an array of matching items.\n */\nexport async function getAllByIndex(dbName, storeName, indexName, query) {\n  try {\n    const db = await openIndexedDB(dbName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readonly');\n      const store = transaction.objectStore(storeName);\n      const index = store.index(indexName);\n      const request = index.getAll(query);\n\n      request.onsuccess = (event) => resolve(event.target.result);\n      request.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n\n/**\n * The current transaction instance.\n */\nlet currentTransaction = null;\n\n/**\n * Begins a transaction across one or more object stores.\n * @param {string} dbName - The name of the database.\n * @param {string|string[]} storeNames - The name(s) of the object store(s).\n * @param {string} mode - The transaction mode ('readonly' or 'readwrite').\n * @returns {Promise<void>}\n */\nexport async function beginTransaction(dbName, storeNames, mode) {\n  const db = await openIndexedDB(dbName);\n  currentTransaction = db.transaction(storeNames, mode);\n}\n\n/**\n * Commits the current transaction.\n * @returns {Promise<void>}\n */\nexport async function commitTransaction() {\n  if (currentTransaction) {\n    currentTransaction.commit();\n    currentTransaction = null;\n  }\n}\n\n/**\n * Counts the number of records in an object store.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @returns {Promise<number>} - A promise that resolves to the count of records.\n */\nexport async function count(dbName, storeName) {\n  try {\n    const db = await openIndexedDB(dbName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readonly');\n      const store = transaction.objectStore(storeName);\n      const request = store.count();\n\n      request.onsuccess = (event) => resolve(event.target.result);\n      request.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n\n/**\n * Clears all records from an object store.\n * @param {string} dbName - The name of the database.\n * @param {string} storeName - The name of the object store.\n * @returns {Promise<boolean>} - A promise that resolves to true if the operation is successful.\n */\nexport async function clearStore(dbName, storeName) {\n  try {\n    const db = await openIndexedDB(dbName);\n    return new Promise((resolve, reject) => {\n      const transaction = db.transaction(storeName, 'readwrite');\n      const store = transaction.objectStore(storeName);\n      const request = store.clear();\n\n      request.onsuccess = () => resolve(true);\n      request.onerror = (event) => reject(event.target.error);\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n
+===================================================================
+diff --git a/IndexedDb/wwwroot/idb.js b/IndexedDb/wwwroot/idb.js
+--- a/IndexedDb/wwwroot/idb.js	(revision 857a32d5f7d061e9c2648ef17cacacc3bc227bba)
++++ b/IndexedDb/wwwroot/idb.js	(date 1726683834812)
+@@ -47,7 +47,7 @@
+  */
+ export async function addOne(dbName, storeName, item) {
+   try {
+-    const db = await openIndexedDB(dbName, storeName);
++    const db = await openIndexedDB(dbName);
+     return new Promise((resolve, reject) => {
+       const transaction = db.transaction(storeName, 'readwrite');
+       const store = transaction.objectStore(storeName);
+@@ -69,7 +69,7 @@
+  */
+ export async function getAll(dbName, storeName) {
+   try {
+-    const db = await openIndexedDB(dbName, storeName);
++    const db = await openIndexedDB(dbName);
+     return new Promise((resolve, reject) => {
+       const transaction = db.transaction(storeName, 'readonly');
+       const store = transaction.objectStore(storeName);
+@@ -92,7 +92,7 @@
+  */
+ export async function getOne(dbName, storeName, id) {
+   try {
+-    const db = await openIndexedDB(dbName, storeName);
++    const db = await openIndexedDB(dbName);
+     return new Promise((resolve, reject) => {
+       const transaction = db.transaction(storeName, 'readonly');
+       const store = transaction.objectStore(storeName);
+@@ -115,7 +115,7 @@
+  */
+ export async function updateOne(dbName, storeName, item) {
+   try {
+-    const db = await openIndexedDB(dbName, storeName);
++    const db = await openIndexedDB(dbName);
+     return new Promise((resolve, reject) => {
+       const transaction = db.transaction(storeName, 'readwrite');
+       const store = transaction.objectStore(storeName);
+@@ -138,7 +138,7 @@
+  */
+ export async function deleteOne(dbName, storeName, id) {
+   try {
+-    const db = await openIndexedDB(dbName, storeName);
++    const db = await openIndexedDB(dbName);
+     return new Promise((resolve, reject) => {
+       const transaction = db.transaction(storeName, 'readwrite');
+       const store = transaction.objectStore(storeName);
+@@ -171,7 +171,7 @@
+         }
+       } else if (schema.modify) {
+         // Handle modifications like adding indexes
+-        const store = event.currentTarget.transaction.objectStore(schema.name);
++        const store = db.transaction.objectStore(schema.name);
+         schema.indexes.forEach((index) => {
+           if (!store.indexNames.contains(index.name)) {
+             store.createIndex(index.name, index.keyPath, { unique: index.unique });
+@@ -222,7 +222,7 @@
+     {
+       name: storeName,
+       modify: true,
+-      indexes: [{ name: indexName, keyPath: keyPath, unique: unique }],
++      indexes: [{name: indexName, keyPath: keyPath, unique: unique}],
+     },
+   ]);
+ }
+Index: IndexedDb.DemoApp/Program.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using IndexedDb;\nusing IndexedDb.DemoApp.Components;\nusing IndexedDb.DemoApp.Services;\n\nvar builder = WebApplication.CreateBuilder(args);\n\n// Add services to the container.\nbuilder.Services.AddRazorComponents()\n    .AddInteractiveServerComponents(config =>\n    {\n        config.DetailedErrors = builder.Environment.IsDevelopment();\n    });\n\nbuilder.Services.AddScoped<IndexedDbInterop>();\nbuilder.Services.AddScoped<PersonManager>();\n\nvar app = builder.Build();\n\n// Configure the HTTP request pipeline.\nif (!app.Environment.IsDevelopment())\n{\n    app.UseExceptionHandler(\"/Error\", createScopeForErrors: true);\n    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.\n    app.UseHsts();\n}\n\napp.UseHttpsRedirection();\n\napp.UseStaticFiles();\napp.UseAntiforgery();\n\napp.MapRazorComponents<App>()\n    .AddInteractiveServerRenderMode();\n\napp.Run();
+===================================================================
+diff --git a/IndexedDb.DemoApp/Program.cs b/IndexedDb.DemoApp/Program.cs
+--- a/IndexedDb.DemoApp/Program.cs	(revision 857a32d5f7d061e9c2648ef17cacacc3bc227bba)
++++ b/IndexedDb.DemoApp/Program.cs	(date 1726682902014)
+@@ -12,7 +12,7 @@
+     });
+ 
+ builder.Services.AddScoped<IndexedDbInterop>();
+-builder.Services.AddScoped<PersonManager>();
++builder.Services.AddScoped<PersonRepository>();
+ 
+ var app = builder.Build();
+ 
+Index: IndexedDb.DemoApp/Models/Person.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>namespace FormLang.BlazorApp.Models;\n\npublic class Person\n{\n    public Guid Id { get; set; }\n    public string? Name { get; set; }\n    public int Age { get; set; }\n}
+===================================================================
+diff --git a/IndexedDb.DemoApp/Models/Person.cs b/IndexedDb.DemoApp/Models/Person.cs
+--- a/IndexedDb.DemoApp/Models/Person.cs	(revision 857a32d5f7d061e9c2648ef17cacacc3bc227bba)
++++ b/IndexedDb.DemoApp/Models/Person.cs	(date 1726682955294)
+@@ -1,4 +1,4 @@
+-namespace FormLang.BlazorApp.Models;
++namespace IndexedDb.DemoApp.Models;
+ 
+ public class Person
+ {
+Index: IndexedDb.DemoApp/Components/_Imports.razor
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>@using System.Net.Http\n@using System.Net.Http.Json\n@using Microsoft.AspNetCore.Components.Forms\n@using Microsoft.AspNetCore.Components.Routing\n@using Microsoft.AspNetCore.Components.Web\n@using static Microsoft.AspNetCore.Components.Web.RenderMode\n@using Microsoft.AspNetCore.Components.Web.Virtualization\n@using Microsoft.JSInterop\n@using IndexedDb.DemoApp\n@using IndexedDb.DemoApp.Components
+===================================================================
+diff --git a/IndexedDb.DemoApp/Components/_Imports.razor b/IndexedDb.DemoApp/Components/_Imports.razor
+--- a/IndexedDb.DemoApp/Components/_Imports.razor	(revision 857a32d5f7d061e9c2648ef17cacacc3bc227bba)
++++ b/IndexedDb.DemoApp/Components/_Imports.razor	(date 1726682973360)
+@@ -7,4 +7,6 @@
+ @using Microsoft.AspNetCore.Components.Web.Virtualization
+ @using Microsoft.JSInterop
+ @using IndexedDb.DemoApp
+-@using IndexedDb.DemoApp.Components
+\ No newline at end of file
++@using IndexedDb.DemoApp.Components
++@using IndexedDb.DemoApp.Models
++@using IndexedDb.DemoApp.Services
+\ No newline at end of file

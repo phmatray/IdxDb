@@ -1,0 +1,118 @@
+V |                      | ArgumentsFromParametersFile.OnBuildCreated (150)
+V |                      | HandleReSharperSurrogateArguments.OnBuildCreated (150)
+V |                      | InjectParameterValues.OnBuildCreated (100)
+V |                      | HandleShellCompletion.OnBuildCreated (75)
+V |                      | GenerateBuildServerConfigurations.OnBuildCreated (50)
+V |                      | InvokeBuildServerConfigurationGeneration.OnBuildCreated (45)
+V |                      | UpdateNotification.OnBuildCreated (10)
+V |                      | UnsetVisualStudioEnvironmentVariables.OnBuildCreated (0)
+V |                      | HandleVisualStudioDebugging.OnBuildCreated (0)
+V |                      | EventInvoker.OnBuildCreated (-3.4028235E+38)
+V |                      | HandlePlanRequests.OnBuildInitialized (10)
+V |                      | HandleHelpRequests.OnBuildInitialized (5)
+V |                      | Telemetry.OnBuildInitialized (0)
+V |                      | Sending BuildStarted telemetry event ...
+V |                      |   build_components         = 
+V |                      |   build_type               = Project
+V |                      |   compile_time             = 3
+V |                      |   config_generators        = 
+V |                      |   host                     = Rider
+V |                      |   num_custom_components    = 0
+V |                      |   num_custom_extensions    = 0
+V |                      |   num_partitioned_targets  = 0
+V |                      |   num_secrets              = 0
+V |                      |   num_targets              = 5
+V |                      |   os_architecture          = Arm64
+V |                      |   os_platform              = OSX
+V |                      |   repo_branch              = main
+V |                      |   repo_commit              = 7a695e
+V |                      |   repo_provider            = GitHub
+V |                      |   repo_url                 = fabdaf
+V |                      |   target_framework         = .NETCoreApp,Version=v8.0
+V |                      |   version_dotnet_sdk       = 8.0.401
+V |                      |   version_nuke_common      = 8.1.0
+V |                      |   version_nuke_global_tool = 8.1.0
+V |                      | InjectNonParameterValues.OnBuildInitialized (-100)
+I |                      | > /opt/homebrew/bin/dotnet /Users/phmatray/.nuget/packages/minver-cli/6.0.0/tools/net8.0/any/minver-cli.dll
+V |                      | @ /Users/phmatray/Repositories/github-phm/IndexedDb
+V |                      | EventInvoker.OnBuildInitialized (-3.4028235E+38)
+V | Restore              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Restore              | > /opt/homebrew/bin/dotnet restore /Users/phmatray/Repositories/github-phm/IndexedDb/IndexedDb.sln
+V | Restore              | @ /Users/phmatray/Repositories/github-phm/IndexedDb
+D | Restore              |   Determining projects to restore...
+D | Restore              |   All projects are up-to-date for restore.
+V | Restore              | Telemetry.OnTargetSucceeded (0)
+V | Restore              | Sending TargetSucceeded telemetry event ...
+V | Restore              |   build_components         = 
+V | Restore              |   build_type               = Project
+V | Restore              |   compile_time             = 3
+V | Restore              |   config_generators        = 
+V | Restore              |   host                     = Rider
+V | Restore              |   num_custom_components    = 0
+V | Restore              |   num_custom_extensions    = 0
+V | Restore              |   num_partitioned_targets  = 0
+V | Restore              |   num_secrets              = 0
+V | Restore              |   num_targets              = 5
+V | Restore              |   os_architecture          = Arm64
+V | Restore              |   os_platform              = OSX
+V | Restore              |   repo_branch              = main
+V | Restore              |   repo_commit              = 7a695e
+V | Restore              |   repo_provider            = GitHub
+V | Restore              |   repo_url                 = fabdaf
+V | Restore              |   target_current_partition = 1
+V | Restore              |   target_duration          = 0
+V | Restore              |   target_framework         = .NETCoreApp,Version=v8.0
+V | Restore              |   target_name              = Restore
+V | Restore              |   target_total_partitions  = 1
+V | Restore              |   version_dotnet_sdk       = 8.0.401
+V | Restore              |   version_nuke_common      = 8.1.0
+V | Restore              |   version_nuke_global_tool = 8.1.0
+V | Restore              | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V | Compile              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Compile              | > /opt/homebrew/bin/dotnet build /Users/phmatray/Repositories/github-phm/IndexedDb/IndexedDb.sln --configuration Release --no-restore /property:Deterministic=True
+V | Compile              | @ /Users/phmatray/Repositories/github-phm/IndexedDb
+D | Compile              |   IndexedDb -> /Users/phmatray/Repositories/github-phm/IndexedDb/IndexedDb/bin/Release/net8.0/IndexedDb.dll
+D | Compile              |   IndexedDb.Tests -> /Users/phmatray/Repositories/github-phm/IndexedDb/IndexedDb.Tests/bin/Release/net8.0/IndexedDb.Tests.dll
+D | Compile              |   IndexedDb.DemoApp -> /Users/phmatray/Repositories/github-phm/IndexedDb/IndexedDb.DemoApp/bin/Release/net8.0/IndexedDb.DemoApp.dll
+D | Compile              | 
+D | Compile              | Build succeeded.
+D | Compile              |     0 Warning(s)
+D | Compile              |     0 Error(s)
+D | Compile              | 
+D | Compile              | Time Elapsed 00:00:00.60
+V | Compile              | Telemetry.OnTargetSucceeded (0)
+V | Compile              | Sending TargetSucceeded telemetry event ...
+V | Compile              |   build_components         = 
+V | Compile              |   build_type               = Project
+V | Compile              |   compile_time             = 4
+V | Compile              |   config_generators        = 
+V | Compile              |   host                     = Rider
+V | Compile              |   num_custom_components    = 0
+V | Compile              |   num_custom_extensions    = 0
+V | Compile              |   num_partitioned_targets  = 0
+V | Compile              |   num_secrets              = 0
+V | Compile              |   num_targets              = 5
+V | Compile              |   os_architecture          = Arm64
+V | Compile              |   os_platform              = OSX
+V | Compile              |   repo_branch              = main
+V | Compile              |   repo_commit              = 7a695e
+V | Compile              |   repo_provider            = GitHub
+V | Compile              |   repo_url                 = fabdaf
+V | Compile              |   target_current_partition = 1
+V | Compile              |   target_duration          = 1
+V | Compile              |   target_framework         = .NETCoreApp,Version=v8.0
+V | Compile              |   target_name              = Compile
+V | Compile              |   target_total_partitions  = 1
+V | Compile              |   version_dotnet_sdk       = 8.0.401
+V | Compile              |   version_nuke_common      = 8.1.0
+V | Compile              |   version_nuke_global_tool = 8.1.0
+V | Compile              | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V | Pack                 | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Pack                 | > /opt/homebrew/bin/dotnet pack /Users/phmatray/Repositories/github-phm/IndexedDb/IndexedDb.sln --configuration Release --include-source --include-symbols --no-build --no-restore --output /Users/phmatray/Repositories/github-phm/IndexedDb/output /property:SymbolPackageFormat=snupkg /property:Version=1.0.0
+V | Pack                 | @ /Users/phmatray/Repositories/github-phm/IndexedDb
+W | Pack                 | /usr/local/share/dotnet/sdk/8.0.401/Sdks/NuGet.Build.Tasks.Pack/build/NuGet.Build.Tasks.Pack.targets(203,6): warning : This project cannot be packaged because packaging has been disabled. Add <IsPackable>true</IsPackable> to the project file to enable producing a package from this project. [/Users/phmatray/Repositories/github-phm/IndexedDb/IndexedDb.DemoApp/IndexedDb.DemoApp.csproj]
+D | Pack                 |   The package IndexedDb.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+D | Pack                 |   Successfully created package '/Users/phmatray/Repositories/github-phm/IndexedDb/output/IndexedDb.1.0.0.nupkg'.
+D | Pack                 |   Successfully created package '/Users/phmatray/Repositories/github-phm/IndexedDb/output/IndexedDb.1.0.0.snupkg'.
+V | Pack                 | Telemetry.OnTargetSucceeded (0)
+V | Pack                 | EventInvoker.OnTargetSucceeded (-3.4028235E+38)

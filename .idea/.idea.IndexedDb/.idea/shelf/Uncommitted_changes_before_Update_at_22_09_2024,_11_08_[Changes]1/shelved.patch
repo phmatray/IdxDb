@@ -1,0 +1,16 @@
+Index: NuGet.Config
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/NuGet.Config b/NuGet.Config
+new file mode 100644
+--- /dev/null	(date 1726914507793)
++++ b/NuGet.Config	(date 1726914507793)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<configuration>
++    <packageSources>
++        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
++    </packageSources>
++</configuration>
