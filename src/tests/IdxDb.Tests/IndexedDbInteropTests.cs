@@ -4,15 +4,13 @@ using FakeItEasy;
 
 namespace IdxDb.Tests;
 
-[TestFixture]
-public class IndexedDbInteropTests
+public class IndexedDbInteropTests : IAsyncLifetime
 {
     private IJSRuntime _jsRuntime;
     private IndexedDbInterop _indexedDbInterop;
     private IJSObjectReference _module;
 
-    [SetUp]
-    public async Task Setup()
+    public async ValueTask InitializeAsync()
     {
         _jsRuntime = A.Fake<IJSRuntime>();
         _module = A.Fake<IJSObjectReference>();
@@ -24,7 +22,7 @@ public class IndexedDbInteropTests
             .Returns(_module);
 
         _indexedDbInterop = new IndexedDbInterop(_jsRuntime);
-        
+
         // Initialize the database to pass the check
         await _indexedDbInterop.OpenIndexedDbAsync("TestDb", 1, new[]
         {
@@ -37,8 +35,7 @@ public class IndexedDbInteropTests
         });
     }
 
-    [TearDown]
-    public async Task TearDown()
+    public async ValueTask DisposeAsync()
     {
         await _indexedDbInterop.DisposeAsync();
         if (_module is IAsyncDisposable asyncDisposable)
@@ -51,7 +48,7 @@ public class IndexedDbInteropTests
         }
     }
 
-    [Test]
+    [Fact]
     public async Task AddAsync_Calls_JS_Interop_With_Correct_Parameters()
     {
         // Arrange
@@ -77,7 +74,7 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task ExecuteQueryAsync_Returns_Correct_Data()
     {
         // Arrange
@@ -95,7 +92,7 @@ public class IndexedDbInteropTests
         var result = await _indexedDbInterop.ExecuteQueryAsync<object>(dbName, storeName, queryOptions);
 
         // Assert
-        Assert.That(result, Is.EqualTo(expectedData));
+        Assert.Equal(expectedData, result);
         A.CallTo(() => _module.InvokeAsync<object[]>(
                 "executeQuery",
                 A<object[]>.That.Matches(args =>
@@ -105,7 +102,7 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task GetByKeyAsync_Returns_Correct_Item()
     {
         // Arrange
@@ -123,7 +120,7 @@ public class IndexedDbInteropTests
         var result = await _indexedDbInterop.GetByKeyAsync<object, int>(dbName, storeName, key);
 
         // Assert
-        Assert.That(result, Is.EqualTo(expectedItem));
+        Assert.Equal(expectedItem, result);
         A.CallTo(() => _module.InvokeAsync<object?>(
                 "getByKey",
                 A<object[]>.That.Matches(args =>
@@ -133,7 +130,7 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateAsync_Calls_JS_Interop_With_Correct_Parameters()
     {
         // Arrange
@@ -159,7 +156,7 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteByKeyAsync_Calls_JS_Interop_With_Correct_Parameters()
     {
         // Arrange
@@ -180,7 +177,7 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task CountAsync_Returns_Correct_Count()
     {
         // Arrange
@@ -197,7 +194,7 @@ public class IndexedDbInteropTests
         var result = await _indexedDbInterop.CountAsync(dbName, storeName);
 
         // Assert
-        Assert.That(result, Is.EqualTo(expectedCount));
+        Assert.Equal(expectedCount, result);
         A.CallTo(() => _module.InvokeAsync<int>(
                 "count",
                 A<object[]>.That.Matches(args =>
@@ -207,7 +204,7 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task CountAsync_With_QueryOptions_Returns_Correct_Count()
     {
         // Arrange
@@ -225,7 +222,7 @@ public class IndexedDbInteropTests
         var result = await _indexedDbInterop.CountAsync(dbName, storeName, queryOptions);
 
         // Assert
-        Assert.That(result, Is.EqualTo(expectedCount));
+        Assert.Equal(expectedCount, result);
         A.CallTo(() => _module.InvokeAsync<int>(
                 "count",
                 A<object[]>.That.Matches(args =>
@@ -235,7 +232,7 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task ClearAsync_Calls_JS_Interop_With_Correct_Parameters()
     {
         // Arrange
@@ -254,7 +251,7 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task OpenIndexedDbAsync_Calls_JS_Interop_With_Correct_Parameters()
     {
         // Arrange
@@ -286,7 +283,7 @@ public class IndexedDbInteropTests
             .MustHaveHappened();
     }
 
-    [Test]
+    [Fact]
     public async Task CloseDatabaseAsync_Calls_JS_Interop_With_Correct_Parameters()
     {
         // Arrange
@@ -303,8 +300,8 @@ public class IndexedDbInteropTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
-    public void Operations_Without_OpenDatabase_Throw_InvalidOperationException()
+    [Fact]
+    public async Task Operations_Without_OpenDatabase_Throw_InvalidOperationException()
     {
         // Arrange
         var uninitializedInterop = new IndexedDbInterop(_jsRuntime);
@@ -312,25 +309,25 @@ public class IndexedDbInteropTests
         string storeName = "TestStore";
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await uninitializedInterop.ExecuteQueryAsync<object>(dbName, storeName));
-        
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await uninitializedInterop.GetByKeyAsync<object, int>(dbName, storeName, 1));
-        
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await uninitializedInterop.AddAsync(dbName, storeName, new { }));
-        
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await uninitializedInterop.UpdateAsync(dbName, storeName, new { }));
-        
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await uninitializedInterop.DeleteByKeyAsync(dbName, storeName, 1));
-        
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await uninitializedInterop.CountAsync(dbName, storeName));
-        
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await uninitializedInterop.ClearAsync(dbName, storeName));
     }
 }
