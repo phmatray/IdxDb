@@ -12,22 +12,17 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.JSInterop" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="FakeItEasy" />
     <PackageReference Include="FakeItEasy.Analyzer.CSharp">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NUnit" />
-    <PackageReference Include="NUnit.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="xunit.v3" Version="1.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.*" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="NUnit.Framework"/>
+    <Using Include="Xunit"/>
   </ItemGroup>
 
   <ItemGroup>

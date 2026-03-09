@@ -5,16 +5,14 @@ using System.Linq.Expressions;
 
 namespace IdxDb.Tests;
 
-[TestFixture]
-public class IndexedDbLinqTests
+public class IndexedDbLinqTests : IAsyncLifetime
 {
     private IJSRuntime _jsRuntime;
     private IJSObjectReference _module;
     private IndexedDbContext _context;
     private IIndexedDbSet<TestEntity> _dbSet;
 
-    [SetUp]
-    public async Task Setup()
+    public async ValueTask InitializeAsync()
     {
         _jsRuntime = A.Fake<IJSRuntime>();
         _module = A.Fake<IJSObjectReference>();
@@ -33,15 +31,14 @@ public class IndexedDbLinqTests
 
         _context = new IndexedDbContext(_jsRuntime, "TestDb");
         await _context.InitializeAsync(typeof(TestEntity));
-        
+
         _dbSet = _context.Set<TestEntity>();
     }
 
-    [TearDown]
-    public async Task TearDown()
+    public async ValueTask DisposeAsync()
     {
         await _context.DisposeAsync();
-        
+
         if (_module is IAsyncDisposable asyncDisposable)
         {
             await asyncDisposable.DisposeAsync();
@@ -54,7 +51,7 @@ public class IndexedDbLinqTests
 
     #region Where Tests
 
-    [Test]
+    [Fact]
     public async Task Where_WithSimpleCondition_ReturnsFilteredResults()
     {
         // Arrange
@@ -63,7 +60,7 @@ public class IndexedDbLinqTests
             new TestEntity { Id = 1, Name = "John", Age = 30 },
             new TestEntity { Id = 2, Name = "Jane", Age = 25 }
         };
-        
+
         A.CallTo(() => _module.InvokeAsync<TestEntity[]>(
                 "executeQuery",
                 A<object[]>.Ignored))
@@ -75,11 +72,11 @@ public class IndexedDbLinqTests
             .ToArrayAsync();
 
         // Assert
-        Assert.That(result, Has.Length.EqualTo(1));
-        Assert.That(result[0].Name, Is.EqualTo("John"));
+        Assert.Single(result);
+        Assert.Equal("John", result[0].Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Where_WithMultipleConditions_ReturnsFilteredResults()
     {
         // Arrange
@@ -101,15 +98,15 @@ public class IndexedDbLinqTests
             .ToArrayAsync();
 
         // Assert
-        Assert.That(result, Has.Length.EqualTo(2));
-        Assert.That(result.Select(r => r.Name), Is.EquivalentTo(new[] { "John", "Bob" }));
+        Assert.Equal(2, result.Length);
+        Assert.Equal(new[] { "John", "Bob" }, result.Select(r => r.Name).OrderBy(n => n).ToArray());
     }
 
     #endregion
 
     #region OrderBy Tests
 
-    [Test]
+    [Fact]
     public async Task OrderBy_WithSingleProperty_ReturnsSortedResults()
     {
         // Arrange
@@ -131,12 +128,12 @@ public class IndexedDbLinqTests
             .ToArrayAsync();
 
         // Assert
-        Assert.That(result[0].Age, Is.EqualTo(25));
-        Assert.That(result[1].Age, Is.EqualTo(30));
-        Assert.That(result[2].Age, Is.EqualTo(35));
+        Assert.Equal(25, result[0].Age);
+        Assert.Equal(30, result[1].Age);
+        Assert.Equal(35, result[2].Age);
     }
 
-    [Test]
+    [Fact]
     public async Task OrderByDescending_ReturnsSortedResults()
     {
         // Arrange
@@ -158,16 +155,16 @@ public class IndexedDbLinqTests
             .ToArrayAsync();
 
         // Assert
-        Assert.That(result[0].Age, Is.EqualTo(35));
-        Assert.That(result[1].Age, Is.EqualTo(30));
-        Assert.That(result[2].Age, Is.EqualTo(25));
+        Assert.Equal(35, result[0].Age);
+        Assert.Equal(30, result[1].Age);
+        Assert.Equal(25, result[2].Age);
     }
 
     #endregion
 
     #region Select Tests
 
-    [Test]
+    [Fact]
     public async Task Select_WithProjection_ThrowsNotSupportedException()
     {
         // Arrange
@@ -184,13 +181,13 @@ public class IndexedDbLinqTests
 
         // Act & Assert
         await Task.CompletedTask; // Satisfy async requirement
-        Assert.ThrowsAsync<NotSupportedException>(async () => 
+        await Assert.ThrowsAsync<NotSupportedException>(async () =>
             await _dbSet
                 .Select(e => new { e.Name, e.Age })
                 .ToArrayAsync());
     }
-    
-    [Test]
+
+    [Fact]
     public async Task Select_WithProjection_WorksAfterToArrayAsync()
     {
         // Arrange
@@ -210,16 +207,16 @@ public class IndexedDbLinqTests
         var result = entities.Select(e => new { e.Name, e.Age }).ToArray();
 
         // Assert
-        Assert.That(result, Has.Length.EqualTo(2));
-        Assert.That(result[0].Name, Is.EqualTo("John"));
-        Assert.That(result[0].Age, Is.EqualTo(30));
+        Assert.Equal(2, result.Length);
+        Assert.Equal("John", result[0].Name);
+        Assert.Equal(30, result[0].Age);
     }
 
     #endregion
 
     #region Skip/Take Tests
 
-    [Test]
+    [Fact]
     public async Task Skip_Take_ImplementsPagination()
     {
         // Arrange
@@ -233,7 +230,6 @@ public class IndexedDbLinqTests
         };
 
         // Setup to return paginated results
-        // Since skip/take are server-side, the mock should return the paginated results
         A.CallTo(() => _module.InvokeAsync<TestEntity[]>(
                 "executeQuery",
                 A<object[]>.Ignored))
@@ -246,16 +242,16 @@ public class IndexedDbLinqTests
             .ToArrayAsync();
 
         // Assert
-        Assert.That(result, Has.Length.EqualTo(2));
-        Assert.That(result[0].Name, Is.EqualTo("Bob"));
-        Assert.That(result[1].Name, Is.EqualTo("Alice"));
+        Assert.Equal(2, result.Length);
+        Assert.Equal("Bob", result[0].Name);
+        Assert.Equal("Alice", result[1].Name);
     }
 
     #endregion
 
     #region First/Single Tests
 
-    [Test]
+    [Fact]
     public async Task FirstAsync_ReturnsFirstElement()
     {
         // Arrange
@@ -274,10 +270,10 @@ public class IndexedDbLinqTests
         var result = await _dbSet.FirstAsync();
 
         // Assert
-        Assert.That(result.Name, Is.EqualTo("John"));
+        Assert.Equal("John", result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task FirstOrDefaultAsync_WithNoResults_ReturnsNull()
     {
         // Arrange
@@ -290,10 +286,10 @@ public class IndexedDbLinqTests
         var result = await _dbSet.FirstOrDefaultAsync();
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task SingleAsync_WithOneResult_ReturnsElement()
     {
         // Arrange
@@ -308,11 +304,11 @@ public class IndexedDbLinqTests
         var result = await _dbSet.SingleAsync();
 
         // Assert
-        Assert.That(result.Name, Is.EqualTo("John"));
+        Assert.Equal("John", result.Name);
     }
 
-    [Test]
-    public void SingleAsync_WithMultipleResults_ThrowsException()
+    [Fact]
+    public async Task SingleAsync_WithMultipleResults_ThrowsException()
     {
         // Arrange
         var sourceData = new[]
@@ -327,14 +323,14 @@ public class IndexedDbLinqTests
             .Returns(sourceData);
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await _dbSet.SingleAsync());
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await _dbSet.SingleAsync());
     }
 
     #endregion
 
     #region Count/Any/All Tests
 
-    [Test]
+    [Fact]
     public async Task CountAsync_ReturnsCorrectCount()
     {
         // Arrange
@@ -347,10 +343,10 @@ public class IndexedDbLinqTests
         var result = await _dbSet.CountAsync();
 
         // Assert
-        Assert.That(result, Is.EqualTo(5));
+        Assert.Equal(5, result);
     }
 
-    [Test]
+    [Fact]
     public async Task CountAsync_WithPredicate_ReturnsFilteredCount()
     {
         // Arrange
@@ -370,10 +366,10 @@ public class IndexedDbLinqTests
         var result = await _dbSet.CountAsync(e => e.Age > 30);
 
         // Assert
-        Assert.That(result, Is.EqualTo(1));
+        Assert.Equal(1, result);
     }
 
-    [Test]
+    [Fact]
     public async Task AnyAsync_WithResults_ReturnsTrue()
     {
         // Arrange
@@ -386,10 +382,10 @@ public class IndexedDbLinqTests
         var result = await _dbSet.AnyAsync();
 
         // Assert
-        Assert.That(result, Is.True);
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public async Task AnyAsync_WithNoResults_ReturnsFalse()
     {
         // Arrange
@@ -402,14 +398,14 @@ public class IndexedDbLinqTests
         var result = await _dbSet.AnyAsync();
 
         // Assert
-        Assert.That(result, Is.False);
+        Assert.False(result);
     }
 
     #endregion
 
     #region Complex Query Tests
 
-    [Test]
+    [Fact]
     public async Task ComplexQuery_WithMultipleOperations_ReturnsCorrectResults()
     {
         // Arrange
@@ -422,18 +418,10 @@ public class IndexedDbLinqTests
             new TestEntity { Id = 5, Name = "Charlie", Age = 32, IsActive = false }
         };
 
-        // The query will:
-        // 1. Apply Where client-side (filtering for IsActive)
-        // 2. Apply OrderByDescending client-side
-        // 3. Apply Skip/Take server-side
-        // Since Where and OrderBy are client-side, we need to return all data
-        // The client-side operations will filter to [Bob(35), John(30), Alice(28)]
-        // Then skip 1 and take 2 should give us [John(30), Alice(28)]
-        
         A.CallTo(() => _module.InvokeAsync<TestEntity[]>(
                 "executeQuery",
                 A<object[]>.Ignored))
-            .Returns(sourceData); // Return all data since Where/OrderBy are client-side
+            .Returns(sourceData);
 
         // Act
         var result = await _dbSet
@@ -444,16 +432,16 @@ public class IndexedDbLinqTests
             .ToArrayAsync();
 
         // Assert
-        Assert.That(result, Has.Length.EqualTo(2));
-        Assert.That(result[0].Name, Is.EqualTo("John"));
-        Assert.That(result[1].Name, Is.EqualTo("Alice"));
+        Assert.Equal(2, result.Length);
+        Assert.Equal("John", result[0].Name);
+        Assert.Equal("Alice", result[1].Name);
     }
 
     #endregion
 
     #region Add/Update/Delete Tests
 
-    [Test]
+    [Fact]
     public async Task AddAsync_AddsEntityToStore()
     {
         // Arrange
@@ -476,7 +464,7 @@ public class IndexedDbLinqTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task AddRangeAsync_AddsMultipleEntities()
     {
         // Arrange
@@ -501,7 +489,7 @@ public class IndexedDbLinqTests
             .MustHaveHappened(2, Times.Exactly);
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateAsync_UpdatesEntity()
     {
         // Arrange
@@ -524,7 +512,7 @@ public class IndexedDbLinqTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_DeletesEntity()
     {
         // Arrange
@@ -542,7 +530,7 @@ public class IndexedDbLinqTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteByIdAsync_DeletesEntityById()
     {
         // Act
@@ -557,12 +545,12 @@ public class IndexedDbLinqTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task FindAsync_ReturnsEntityByKey()
     {
         // Arrange
         var expectedEntity = new TestEntity { Id = 1, Name = "John" };
-        
+
         A.CallTo(() => _module.InvokeAsync<TestEntity?>(
                 "getByKey",
                 A<object[]>.Ignored))
@@ -572,9 +560,9 @@ public class IndexedDbLinqTests
         var result = await _dbSet.FindAsync(1);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Name, Is.EqualTo("John"));
-        
+        Assert.NotNull(result);
+        Assert.Equal("John", result!.Name);
+
         A.CallTo(() => _module.InvokeAsync<TestEntity?>(
                 "getByKey",
                 A<object[]>.That.Matches(args =>
@@ -583,7 +571,7 @@ public class IndexedDbLinqTests
             .MustHaveHappenedOnceExactly();
     }
 
-    [Test]
+    [Fact]
     public async Task ClearAsync_ClearsAllEntities()
     {
         // Act
@@ -604,11 +592,11 @@ public class IndexedDbLinqTests
     {
         [IndexedDbKeyPath(AutoIncrement = true)]
         public int Id { get; set; }
-        
+
         public required string Name { get; set; }
-        
+
         public int Age { get; set; }
-        
+
         public bool IsActive { get; set; }
     }
 }
