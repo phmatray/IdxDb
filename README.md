@@ -641,6 +641,22 @@ The demo application includes a `PersonRepository` that extends the library's ca
 
 **Note:** The `PersonRepository` is **not** part of the **IndexedDb Blazor Library** but serves as an example in the demo application.
 
+<!-- portfolio-techstack:start -->
+
+## Tech Stack
+
+- **C#**
+- Microsoft.AspNetCore.Components.WebAssembly
+- Microsoft.AspNetCore.Components.WebAssembly.DevServer
+- MudBlazor
+- Microsoft.AspNetCore.Components.Web
+- Microsoft.JSInterop
+- FakeItEasy
+- FakeItEasy.Analyzer.CSharp
+- xunit.v3
+
+<!-- portfolio-techstack:end -->
+
 ## **Contributing**
 
 Contributions are welcome! Please follow these steps:
