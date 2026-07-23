@@ -1,3 +1,5 @@
+![IdxDb banner](.github/banner.png)
+
 # **IdxDb**
 
 A Blazor library that provides seamless interaction with **IndexedDB** via JavaScript interop. This library simplifies data storage and retrieval in Blazor applications by offering a straightforward API for IndexedDB operations.
