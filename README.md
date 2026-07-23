@@ -657,6 +657,14 @@ The demo application includes a `PersonRepository` that extends the library's ca
 
 <!-- portfolio-techstack:end -->
 
+<!-- portfolio-roadmap:start -->
+
+## Roadmap
+
+Planned work and known limitations are tracked in the [open issues](https://github.com/phmatray/IdxDb/issues). Contributions toward them are welcome.
+
+<!-- portfolio-roadmap:end -->
+
 ## **Contributing**
 
 Contributions are welcome! Please follow these steps:
