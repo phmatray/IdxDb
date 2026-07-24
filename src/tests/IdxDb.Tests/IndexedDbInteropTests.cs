@@ -6,9 +6,9 @@ namespace IdxDb.Tests;
 
 public class IndexedDbInteropTests : IAsyncLifetime
 {
-    private IJSRuntime _jsRuntime;
-    private IndexedDbInterop _indexedDbInterop;
-    private IJSObjectReference _module;
+    private IJSRuntime _jsRuntime = null!;
+    private IndexedDbInterop _indexedDbInterop = null!;
+    private IJSObjectReference _module = null!;
 
     public async ValueTask InitializeAsync()
     {

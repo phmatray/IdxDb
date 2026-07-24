@@ -7,10 +7,10 @@ namespace IdxDb.Tests;
 
 public class IndexedDbLinqTests : IAsyncLifetime
 {
-    private IJSRuntime _jsRuntime;
-    private IJSObjectReference _module;
-    private IndexedDbContext _context;
-    private IIndexedDbSet<TestEntity> _dbSet;
+    private IJSRuntime _jsRuntime = null!;
+    private IJSObjectReference _module = null!;
+    private IndexedDbContext _context = null!;
+    private IIndexedDbSet<TestEntity> _dbSet = null!;
 
     public async ValueTask InitializeAsync()
     {
@@ -99,7 +99,7 @@ public class IndexedDbLinqTests : IAsyncLifetime
 
         // Assert
         Assert.Equal(2, result.Length);
-        Assert.Equal(new[] { "John", "Bob" }, result.Select(r => r.Name).OrderBy(n => n).ToArray());
+        Assert.Equal(new[] { "Bob", "John" }, result.Select(r => r.Name).OrderBy(n => n).ToArray());
     }
 
     #endregion
