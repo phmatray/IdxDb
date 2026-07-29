@@ -714,3 +714,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **[IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)**: The underlying technology enabling this library.
 - **[fake-indexeddb](https://github.com/dumbmatter/fakeIndexedDB)**: For facilitating testing of IndexedDB in Jest.
 - **[Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)**: For the powerful framework enabling interactive web UIs with C#.
+
+<!-- portfolio-nugetkeep:start -->
+---
+Built by [Atypical Consulting](https://www.atypical.consulting). We also make
+[NuGetKeep](https://nugetkeep.com/?utm_source=github-readme&utm_medium=readme&utm_campaign=launch-2026-07),
+a self-hosted NuGet server with supply-chain quarantine.
+<!-- portfolio-nugetkeep:end -->
